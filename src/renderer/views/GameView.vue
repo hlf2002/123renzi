@@ -82,7 +82,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { api, speak } from '../store';
+import { api } from '../store';
 import WarehouseBar from '../components/WarehouseBar.vue';
 import LearnCard from '../components/LearnCard.vue';
 
@@ -189,7 +189,7 @@ async function submit() {
         learnQueue.value = toLearn;
         learnIndex.value = 0;
         phase.value = 'learning';
-        speakSoon(toLearn[0].hanzi);
+        // LearnCard会自动朗读完整讲解，不需要单独读字
       } else {
         next();
       }
@@ -224,14 +224,10 @@ function next() {
 function learnNext() {
   if (learnIndex.value < learnQueue.value.length - 1) {
     learnIndex.value += 1;
-    speakSoon(learnQueue.value[learnIndex.value].hanzi);
+    // LearnCard会自动朗读完整讲解，不需要单独读字
   } else {
     next();
   }
-}
-
-function speakSoon(text) {
-  setTimeout(() => speak(text), 350);
 }
 
 watch(phase, (v) => {
