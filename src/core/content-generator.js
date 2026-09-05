@@ -54,8 +54,8 @@ const TEMPLATES = [
   { type: 'word', pattern: '绿{A}', fixed: ['绿'], minKnown: 20 },
   { type: 'word', pattern: '上{A}', fixed: ['上'], minKnown: 20 },
   { type: 'word', pattern: '下{A}', fixed: ['下'], minKnown: 20 },
-  // 纯随机组合兜底（任何时候可用，但优先级低于上面的常见模式）
-  { type: 'word', pattern: '{A}{B}', fixed: [], minKnown: 0 },
+  // 注意：不使用纯随机 {A}{B} 模板，避免生成不通顺的词；
+  // 常见构词模式都不可用时退化为单字格。
 
   // ===== 短语（phrase，3-5字）=====
   { type: 'phrase', pattern: '{A}的{B}', fixed: ['的'], minKnown: 30 },

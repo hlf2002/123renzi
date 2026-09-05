@@ -16,7 +16,7 @@ const PROBE_EVERY = 5;     // 每 5 题插入 1 个探测字
 
 const DEFAULT_SETTINGS = {
   delays: { 1: 1, 2: 3, 3: 7, 4: 30 }, // 各仓库复习间隔（天），家长可配
-  carrierThresholds: { word: 15, phrase: 200, sentence: 600 }, // 只读默认
+  carrierThresholds: { word: 10, phrase: 60, sentence: 150 }, // 只读默认
   sessionNew: SESSION_NEW,
   sessionReview: SESSION_REVIEW,
 };
@@ -68,13 +68,13 @@ function createAppCore(storage, pack) {
     return pick;
   }
 
-  /** 把字 id 集合组词/组句；固定池无候选时用混合生成器生成；都没有才退化为单字格 */
+  /** 把字 id 集合组词/组句；真实词库无候选时退化为单字格 */
   function buildItems(userId, charIds, maxCarrier) {
     const test = new Set(charIds.map((id) => (charById(id) ? charById(id).hanzi : null)).filter(Boolean));
     if (test.size === 0) return [];
     const known = knownHanziSet(userId);
 
-    // 1. 优先从固定词库选
+    // 优先从真实词库选（21159个常用词，含儿童短句）
     const { items } = content.pickItemsWithFallback(pack.pool, known, test, maxCarrier, charIds.length);
     if (items.length > 0) {
       return items.map((e) => ({
@@ -88,21 +88,8 @@ function createAppCore(storage, pack) {
       }));
     }
 
-    // 2. 固定池无候选，用混合生成器生成词语/句子
-    const generated = contentGenerator.generateItems(known, test, maxCarrier, charIds.length);
-    if (generated.length > 0) {
-      return generated.map((e, i) => ({
-        content_id: -1000 - i, // 生成内容用负 id 区分
-        text: e.text,
-        type: e.type,
-        chars: e.chars.map((h) => {
-          const c = storage.getCharByHanzi(h);
-          return { char_id: c ? c.char_id : null, hanzi: h, pinyin: c ? c.pinyin : '' };
-        }),
-      }));
-    }
-
-    // 3. 生成器也无法生成（known 太少），退化为单字格
+    // 真实词库无候选（如生僻字），退化为单字格
+    // 注意：不使用随机生成器硬凑词语，避免生成不通顺的词
     return charIds.slice(0, 8).map((id, i) => {
       const c = charById(id);
       if (!c) return null;

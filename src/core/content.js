@@ -10,12 +10,11 @@ const path = require('path');
 // 载体类型权重：可选条目的 type 权重不得超过当前载体
 const TYPE_WEIGHT = { char: 1, word: 2, phrase: 3, sentence: 4 };
 
-// 载体阶段阈值：<15纯单字 / 15~200双字词 / 200~600短语 / 600+句子
-// （原阈值<100过高，孩子经常点"不认识"时W4增长慢，会一直卡在单字阶段）
+// 载体阶段阈值：<10纯单字 / 10~60双字词 / 60~150短语 / 150+句子
 function carrierFor(skillLevel) {
-  if (skillLevel < 15) return 'char';
-  if (skillLevel < 200) return 'word';
-  if (skillLevel < 600) return 'phrase';
+  if (skillLevel < 10) return 'char';
+  if (skillLevel < 60) return 'word';
+  if (skillLevel < 150) return 'phrase';
   return 'sentence';
 }
 

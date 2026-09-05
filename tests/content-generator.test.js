@@ -44,15 +44,12 @@ test('不同随机种子生成不同结果', () => {
   assert.notEqual(texts1, texts2, '不同种子应生成不同结果');
 });
 
-test('known 太少时只生成双字词（无固定功能字模板）', () => {
+test('known 太少时无可用模板返回空（不硬凑不通顺的词）', () => {
   const known = new Set(['大', '小']);
   const test = new Set(['山']);
   const results = gen.generateItems(known, test, 'sentence', 5, fixedRng(7));
-  assert.ok(results.length > 0);
-  for (const item of results) {
-    assert.equal(item.type, 'word', 'known 太少时应只生成双字词');
-    assert.equal(item.chars.length, 2);
-  }
+  // 大/小模板需要 minKnown=5，known只有2字，无可用模板
+  assert.equal(results.length, 0, 'known太少时应返回空，由调用方退化为单字格');
 });
 
 test('known 足够时能生成短语和句子', () => {
@@ -94,8 +91,8 @@ test('生成结果去重（不重复）', () => {
 });
 
 test('AI 生成器注入与回退', () => {
-  const known = new Set(['大', '小']);
-  const test = new Set(['山']);
+  const known = new Set(['大', '小', '山', '水', '的', '在', '里']);
+  const test = new Set(['花']);
   // 注入一个返回无效结果的 AI 生成器（包含不在 known∪test 的字）
   gen.setAIGenerator({
     generate: async () => [{ text: '外星人', type: 'word' }],
