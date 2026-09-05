@@ -553,13 +553,11 @@ async function teach(char, context = {}) {
     }
   }
 
-  // 语音朗读的分段文本
+  // 语音朗读的分段文本：只读字、组词、造句正文
   const speakParts = [
-    `${hanzi}，读${pinyin || hanzi}。`,
-    meaning,
-    words.length > 0 ? `组词：${words.map(w => w.word).join('、')}。` : '',
-    exampleSentence ? `例句：${exampleSentence}。` : '',
-    usage,
+    hanzi,
+    words.length > 0 ? words.map(w => w.word).join('、') : '',
+    exampleSentence || '',
   ].filter(Boolean);
 
   return {

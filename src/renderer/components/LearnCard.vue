@@ -120,13 +120,11 @@ function sayAll() {
   if (teaching.value.speakParts && teaching.value.speakParts.length > 0) {
     speakTeaching(teaching.value.speakParts);
   } else {
-    // 兜底：逐段朗读
+    // 兜底：只读字、组词、造句正文
     const parts = [
-      `${props.char.hanzi}，读${props.char.pinyin || props.char.hanzi}。`,
-      teaching.value.meaning,
-      teaching.value.words && teaching.value.words.length > 0 ? `组词：${teaching.value.words.map(w => w.word).join('、')}。` : '',
-      teaching.value.exampleSentence ? `例句：${teaching.value.exampleSentence}。` : '',
-      teaching.value.usage,
+      props.char.hanzi,
+      teaching.value.words && teaching.value.words.length > 0 ? teaching.value.words.map(w => w.word).join('、') : '',
+      teaching.value.exampleSentence || '',
     ].filter(Boolean);
     speakTeaching(parts);
   }
