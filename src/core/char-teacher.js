@@ -13,6 +13,7 @@ const path = require('path');
 
 let _words = null;
 let _sentences = null;
+let _sentencesByChar = null;
 let _xinhua = null;
 let _dataDir = null;
 
@@ -55,6 +56,17 @@ function loadSentences() {
     _sentences = [];
   }
   return _sentences;
+}
+
+function loadSentencesByChar() {
+  if (_sentencesByChar) return _sentencesByChar;
+  if (!_dataDir) return {};
+  try {
+    _sentencesByChar = JSON.parse(fs.readFileSync(path.join(_dataDir, 'sentences-by-char.json'), 'utf8'));
+  } catch (e) {
+    _sentencesByChar = {};
+  }
+  return _sentencesByChar;
 }
 
 /**
@@ -339,9 +351,15 @@ const commonMeanings = {
  */
 function getSentences(hanzi, count = 2) {
   const sentences = loadSentences();
+  const sentencesByChar = loadSentencesByChar();
   const xinhua = loadXinhua();
 
-  // 1. 优先从儿童句子库提取
+  // 0. 优先使用手工造句库（质量最高）
+  if (sentencesByChar[hanzi] && sentencesByChar[hanzi].length > 0) {
+    return sentencesByChar[hanzi].slice(0, count);
+  }
+
+  // 1. 从儿童句子库提取
   const kidSentences = sentences
     .filter((s) => s.text && s.text.includes(hanzi))
     .map((s) => s.text);
