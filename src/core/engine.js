@@ -6,7 +6,13 @@
  */
 
 const { skillLevel: skillLevelFromStore } = require('./scheduler');
-const { levelWithPercentile } = require('./levels');
+const {
+  levelWithPercentile,
+  gradeFromCharGrade,
+  gradeOrder,
+  nextGradeOf,
+  percentileFromProgress,
+} = require('./levels');
 
 const JUMP_STREAK = 5;   // 连续全对次数 → 跳级
 const DEMOTE_STREAK = 3; // 连续答错次数 → 降级
@@ -124,18 +130,44 @@ function bandRange(band) {
   return [b * 300 + 1, (b + 1) * 300];
 }
 
-/** 对外水平视图（激励展示） */
+/** 对外水平视图（激励展示）——年级与百分位基于字库实际年级和学习进度，而非全量3500字硬编码 */
 function getLevelView(storage, userId, now = Date.now()) {
   const lv = ensureLevel(storage, userId, now);
-  const lp = levelWithPercentile(lv.skill_level);
+  lv.skill_level = skillLevelFromStore(storage, userId);
+
+  // 统计用户已学字的年级分布，取最高年级作为当前水平
+  const progress = storage.allProgress(userId);
+  const learnedByGrade = {};
+  let maxGL = null;
+  for (const p of progress) {
+    const c = storage.getChar(p.char_id);
+    if (!c) continue;
+    const gl = c.grade_level || 'g1';
+    learnedByGrade[gl] = (learnedByGrade[gl] || 0) + 1;
+    if (!maxGL || gradeOrder(gl) > gradeOrder(maxGL)) maxGL = gl;
+  }
+
+  // 字库各年级总字数
+  const totalByGrade = {};
+  for (const c of storage.allChars()) {
+    const gl = c.grade_level || 'g1';
+    totalByGrade[gl] = (totalByGrade[gl] || 0) + 1;
+  }
+
+  const currentGL = maxGL || 'g1';
+  const grade = maxGL ? gradeFromCharGrade(maxGL) : '幼小衔接';
+  const learned = learnedByGrade[currentGL] || 0;
+  const total = totalByGrade[currentGL] || 1;
+  const percentile = percentileFromProgress(learned, total);
+
   return {
     skill_level: lv.skill_level,
-    grade: lp.grade,
-    next_grade: lp.next,
-    percentile: lp.percentile,
+    grade,
+    next_grade: nextGradeOf(currentGL),
+    percentile,
     band: lv.band,
     recent_accuracy: Math.round(lv.recent_accuracy * 100) / 100,
-    note: lp.note,
+    note: '参照同龄学习进度估算',
     updated_at: lv.updated_at,
   };
 }

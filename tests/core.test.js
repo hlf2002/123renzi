@@ -158,3 +158,25 @@ test('持续评估按批跳级：一批 5 新字全对不瞬间跳级', () => {
   assert.equal(r.events.filter((e) => e.type === 'jump').length, 0, '一批全对不应立即跳级');
   assert.equal(core.getLevel(u.user_id).band, 0);
 });
+
+test('年级与百分位基于字库实际进度：学完g1显示一年级、百分位上升', () => {
+  const { core, u } = setup();
+  let lv = core.getLevel(u.user_id);
+  assert.equal(lv.grade, '幼小衔接', '未学字时显示幼小衔接');
+  assert.equal(lv.percentile, 1, '未学字时百分位为下限');
+  // 学完全部 g1 字
+  let guard = 0;
+  while (true) {
+    const s = core.getSession(u.user_id);
+    if (!s.newItems || s.newItems.length === 0) break;
+    const ids = [];
+    s.newItems.forEach((item) => item.chars.forEach((c) => { if (c.char_id) ids.push(c.char_id); }));
+    core.submitSession(u.user_id, ids.map((id) => ({ charId: id, known: true })));
+    guard += 1;
+    assert.ok(guard < 200, '循环未收敛');
+  }
+  lv = core.getLevel(u.user_id);
+  assert.equal(lv.grade, '一年级', '学完 g1 字库应显示一年级');
+  assert.ok(lv.percentile > 50, '学完一年级应超过半数同龄人');
+  assert.equal(lv.next_grade, '二年级');
+});

@@ -65,4 +65,44 @@ function clamp(v, lo, hi) {
   return Math.max(lo, Math.min(hi, v));
 }
 
-module.exports = { GRADE_BASE, gradeOf, levelWithPercentile, normalCdf };
+// 字库 grade_level 字段 → 年级名
+const GRADE_LEVEL_MAP = {
+  g1: '一年级', g2: '二年级', g3: '三年级', g4: '四年级',
+  g5: '五年级', g6: '六年级', gj: '初中', gh: '高中',
+};
+const GRADE_ORDER = { g1: 1, g2: 2, g3: 3, g4: 4, g5: 5, g6: 6, gj: 7, gh: 8 };
+
+/** 字库 grade_level → 年级展示名 */
+function gradeFromCharGrade(gl) {
+  return GRADE_LEVEL_MAP[gl] || '幼小衔接';
+}
+/** 年级顺序（用于比较高低） */
+function gradeOrder(gl) {
+  return GRADE_ORDER[gl] || 0;
+}
+/** 下一年级名（最高年级返回 null） */
+function nextGradeOf(gl) {
+  const order = gradeOrder(gl);
+  if (order === 0) return '一年级';
+  const entry = Object.entries(GRADE_ORDER).find(([, v]) => v === order + 1);
+  return entry ? GRADE_LEVEL_MAP[entry[0]] : null;
+}
+
+/**
+ * 基于「当前年级字库学习进度」的同龄人百分位。
+ * 修复旧版按全量3500字硬编码导致首版121字永远显示幼小衔接/1%的问题。
+ * 同龄人基准：该年级字库平均学完 60%，sigma=12%。
+ */
+function percentileFromProgress(learned, total) {
+  if (!Number.isFinite(total) || total <= 0) return 1;
+  const mu = total * 0.6;
+  const sigma = Math.max(total * 0.12, 1);
+  const pct = Math.round(normalCdf((learned - mu) / sigma) * 100);
+  return clamp(pct, 1, 99);
+}
+
+module.exports = {
+  GRADE_BASE, GRADE_LEVEL_MAP,
+  gradeOf, levelWithPercentile, normalCdf,
+  gradeFromCharGrade, gradeOrder, nextGradeOf, percentileFromProgress,
+};
