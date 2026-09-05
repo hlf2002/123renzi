@@ -321,6 +321,10 @@ const commonMeanings = {
     '找': '寻找，寻求',
     '变': '变化，改变',
     '海': '大海，海洋',
+    '穆': '严肃，恭敬',
+    '肃': '严肃，恭敬',
+    '静': '安静，没有声音',
+    '安': '安全，平安；安排',
   };
 
 /**
@@ -482,7 +486,14 @@ async function teach(char, context = {}) {
   const pinyin = char.pinyin || '';
   const words = getWords(hanzi, 3);
   const sentences = getSentences(hanzi, 2);
-  const exampleSentence = context.currentSentence || sentences[0] || '';
+
+  // currentSentence 只有在是完整句子（长度>1且不等于单字）时才用作造句
+  // 避免单字格学习时 currentSentence=单字，导致造句只有一个字
+  let currentSentence = context.currentSentence || '';
+  if (currentSentence.length <= 1 || currentSentence === hanzi) {
+    currentSentence = '';
+  }
+  const exampleSentence = currentSentence || sentences[0] || '';
 
   const xinhua = loadXinhua();
   const pos = xinhua[hanzi] && xinhua[hanzi].pos ? xinhua[hanzi].pos : '';
