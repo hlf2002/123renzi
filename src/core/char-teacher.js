@@ -2202,19 +2202,18 @@ async function teach(char, context = {}) {
     }
   }
 
-  // 语音朗读：组成一个完整的、有感情的句子
-  // 格式：小朋友，这个字念X，组词1的X，组词2的X，组词3的X，造句。
-  let speakText = `小朋友，这个字念${hanzi}`;
+  // 语音朗读：组成一个完整的、有感情的句子，适合小朋友听
+  // 格式：小朋友，我们一起来认字吧！这个字念X，组词1的X，组词2的X，组词3的X。造句哦：造句。
+  let speakText = `小朋友，我们一起来认字吧！这个字念${hanzi}`;
   if (words.length > 0) {
     const wordParts = words.slice(0, 3).map(w => `${w.word}的${hanzi}`);
     speakText += '，' + wordParts.join('，');
   }
+  speakText += '。';
   if (exampleSentence) {
-    speakText += '，' + exampleSentence;
-  }
-  // 确保以句号结尾，但避免双句号
-  if (!speakText.endsWith('。')) {
-    speakText += '。';
+    // 去掉造句末尾的句号，避免双句号
+    const sentence = exampleSentence.replace(/[。！？]+$/, '');
+    speakText += `用${hanzi}造句哦：${sentence}。`;
   }
 
   const speakParts = [speakText];

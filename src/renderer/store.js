@@ -123,8 +123,10 @@ function speakWithWebSpeech(text, opts = {}) {
     if (!voicesLoaded) loadVoices();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'zh-CN';
-    u.rate = opts.rate || 0.75;
-    u.pitch = opts.pitch || 1.1;
+    // 适合小朋友的朗读参数：略高音调（更活泼有童趣）、略慢语速（更清晰）
+    u.rate = opts.rate || 0.85;
+    u.pitch = opts.pitch || 1.25;
+    u.volume = opts.volume || 1.0;
     if (femaleVoice) u.voice = femaleVoice;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
