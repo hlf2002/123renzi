@@ -427,15 +427,17 @@ function makeTemplateSentence(hanzi) {
 }
 
 /**
- * 用法说明：结合词性和造句，用儿童能理解的语言解释。
+ * 句子解读：结合词性和造句，用儿童能理解的语言解释这个字在句子中的含义。
  * @param {string} hanzi
  * @param {string} sentence
- * @param {string} [pos] 词性（名/动/形/数/量/代/副/介/连/助/叹/拟声）
+ * @param {string} [pos] 词性
+ * @param {string} [meaning] 字义
  * @returns {string}
  */
-function getUsage(hanzi, sentence, pos) {
+function getUsage(hanzi, sentence, pos, meaning) {
   const xinhua = loadXinhua();
   const wordPOS = pos || (xinhua[hanzi] && xinhua[hanzi].pos) || '';
+  const wordMeaning = meaning || getMeaning(hanzi, '');
 
   // 词性的儿童友好解释
   const posExplain = {
@@ -455,20 +457,26 @@ function getUsage(hanzi, sentence, pos) {
 
   let usage = '';
 
-  // 先解释词性
-  if (wordPOS && posExplain[wordPOS[0]]) {
-    usage = `「${hanzi}」是${wordPOS[0]}词，${posExplain[wordPOS[0]]}。`;
-  }
-
-  // 再结合造句解释在句子中的用法
+  // 先解释这个字在句子中的含义
   if (sentence && sentence.includes(hanzi)) {
+    usage = `在「${sentence}」中，`;
+    if (wordMeaning && wordMeaning.length < 30) {
+      // 去掉字义中的「」，避免嵌套引号
+      const cleanMeaning = wordMeaning.replace(/[「」]/g, '');
+      usage += `「${hanzi}」的意思是「${cleanMeaning}」。`;
+    } else {
+      usage += `「${hanzi}」是一个${wordPOS[0] || '常用'}字。`;
+    }
+    // 再指出位置
     const idx = sentence.indexOf(hanzi);
     const before = sentence.slice(Math.max(0, idx - 2), idx);
     const after = sentence.slice(idx + 1, idx + 3);
-    if (usage) {
-      usage += `在「${sentence}」中，「${hanzi}」用在「${before}...${after}」的位置。`;
-    } else {
-      usage = `在「${sentence}」中，「${hanzi}」用在「${before}...${after}」的位置。`;
+    usage += `它用在「${before}...${after}」的位置。`;
+  } else if (wordPOS) {
+    // 没有造句时，只解释词性
+    usage = `「${hanzi}」是${wordPOS[0]}词，${posExplain[wordPOS[0]] || ''}。`;
+    if (wordMeaning && wordMeaning.length < 30) {
+      usage += `意思是「${wordMeaning}」。`;
     }
   }
 
@@ -499,7 +507,7 @@ async function teach(char, context = {}) {
   const pos = xinhua[hanzi] && xinhua[hanzi].pos ? xinhua[hanzi].pos : '';
 
   let meaning = getMeaning(hanzi, pinyin);
-  let usage = getUsage(hanzi, exampleSentence, pos);
+  let usage = getUsage(hanzi, exampleSentence, pos, meaning);
 
   // AI 接口：如果注入了 AI 教学生成器，用 AI 生成更准确的解释和用法
   if (aiTeacher) {

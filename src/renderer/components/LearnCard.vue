@@ -36,9 +36,9 @@
         </div>
       </div>
 
-      <!-- 用法 -->
+      <!-- 句子解读 -->
       <div class="lc-section" v-if="teaching.usage">
-        <div class="lc-label">💡 用法</div>
+        <div class="lc-label">💡 句子解读</div>
         <div class="lc-text lc-usage">{{ teaching.usage }}</div>
       </div>
     </div>
