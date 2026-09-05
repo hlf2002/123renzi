@@ -13,6 +13,7 @@ const path = require('path');
 
 let _words = null;
 let _sentences = null;
+let _xinhua = null;
 let _dataDir = null;
 
 // AI 教学内容生成器接口（预留）
@@ -21,6 +22,17 @@ let aiTeacher = null;
 
 function init(dataDir) {
   _dataDir = dataDir;
+}
+
+function loadXinhua() {
+  if (_xinhua) return _xinhua;
+  if (!_dataDir) return {};
+  try {
+    _xinhua = JSON.parse(fs.readFileSync(path.join(_dataDir, 'xinhua.json'), 'utf8'));
+  } catch (e) {
+    _xinhua = {};
+  }
+  return _xinhua;
 }
 
 function loadWords() {
@@ -72,16 +84,38 @@ function getSentences(hanzi, count = 2) {
 }
 
 /**
- * 简化字义解释模板（首版）。
- * 未来接入 AI 后用 AI 生成准确解释。
+ * 字义解释：优先使用新华字典，其次用内置高频字解释，最后用通用模板。
  * @param {string} hanzi
  * @param {string} pinyin
  * @returns {string}
  */
 function getMeaning(hanzi, pinyin) {
+  const xinhua = loadXinhua();
+
+  // 1. 优先使用新华字典解释
+  if (xinhua[hanzi] && xinhua[hanzi].meaning) {
+    let meaning = xinhua[hanzi].meaning;
+    // 如果新华字典解释太短（<6字），尝试用内置解释补充
+    if (meaning.length < 6 && commonMeanings[hanzi]) {
+      meaning = commonMeanings[hanzi];
+    }
+    // 如果解释末尾是"的"且太短，补充说明
+    if (meaning.endsWith('的') && meaning.length < 10 && commonMeanings[hanzi]) {
+      meaning = commonMeanings[hanzi];
+    }
+    return meaning;
+  }
+
+  // 2. 内置高频字解释
+  if (commonMeanings[hanzi]) return commonMeanings[hanzi];
+
+  // 3. 通用模板
   const py = pinyin || '';
-  // 常见字的简化解释（覆盖最高频的100字）
-  const commonMeanings = {
+  return `这个字读「${py || hanzi}」，是一个常用汉字。`;
+}
+
+// 内置高频字解释（100字），用于新华字典解释太短或不准确时补充
+const commonMeanings = {
     '一': '数字，表示最小的正整数',
     '二': '数字，一加一的和',
     '三': '数字，二加一的和',
@@ -179,10 +213,6 @@ function getMeaning(hanzi, pinyin) {
     '着': '表示动作正在进行',
     '过': '表示动作曾经发生',
   };
-  if (commonMeanings[hanzi]) return commonMeanings[hanzi];
-  // 通用模板
-  return `这个字读「${py || hanzi}」，是一个常用汉字。`;
-}
 
 /**
  * 用法说明模板（首版）：解释该字在句子中的常见用法。
