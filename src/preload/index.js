@@ -29,4 +29,7 @@ contextBridge.exposeInMainWorld('api', {
     get: () => ipcRenderer.invoke('settings:get'),
     set: (patch) => ipcRenderer.invoke('settings:set', patch),
   },
+  teacher: {
+    teach: (char, context) => ipcRenderer.invoke('teacher:teach', char, context),
+  },
 });

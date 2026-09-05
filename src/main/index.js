@@ -39,6 +39,9 @@ function createWindow() {
 app.whenReady().then(() => {
   const dbPath = defaultDbPath(app.getPath('userData'));
   const packDir = path.join(__dirname, '..', 'assets', 'content', 'full');
+  // 初始化汉字教学内容生成器
+  const charTeacher = require('../core/char-teacher');
+  charTeacher.init(packDir);
   try {
     ctx = initApp(dbPath, packDir);
   } catch (e) {

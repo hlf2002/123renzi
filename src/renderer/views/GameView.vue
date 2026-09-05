@@ -43,7 +43,7 @@
 
         <!-- 学习卡阶段 -->
         <div v-else class="learn-area">
-          <LearnCard :key="learnIndex" :char="learnQueue[learnIndex]" />
+          <LearnCard :key="learnIndex" :char="learnQueue[learnIndex]" :current-sentence="currentSentence" />
           <div class="learn-next">
             <button class="btn primary big" @click="learnNext">
               {{ learnIndex < learnQueue.length - 1 ? '下一个' : '继续学' }}
@@ -102,6 +102,10 @@ const learnIndex = ref(0);
 const error = ref('');
 
 const current = computed(() => queue.value[qIndex.value] || null);
+const currentSentence = computed(() => {
+  if (!current.value || !current.value.item) return '';
+  return current.value.item.text || '';
+});
 const carrierClass = computed(() => (session.value ? 'car-' + session.value.carrier : 'car-char'));
 const kindTip = computed(() => {
   if (!current.value) return '';

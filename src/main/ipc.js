@@ -43,6 +43,10 @@ function registerIpc(ctx) {
   // ---- 家长设置（复习间隔可配）----
   ipcMain.handle('settings:get', () => ctx.core.getSettings());
   ipcMain.handle('settings:set', (_e, patch) => ctx.core.updateSettings(patch || {}));
+
+  // ---- 汉字教学（读字/组词/解释/造句/用法）----
+  const charTeacher = require('../core/char-teacher');
+  ipcMain.handle('teacher:teach', (_e, char, context) => charTeacher.teach(char || {}, context || {}));
 }
 
 module.exports = { registerIpc };
