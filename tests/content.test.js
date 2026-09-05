@@ -3,14 +3,14 @@ const { test } = require('node:test');
 const assert = require('node:assert');
 const { carrierFor, pickItems, pickItemsWithFallback } = require('../src/core/content');
 
-test('carrierFor 载体阶段阈值（已确认）', () => {
+test('carrierFor 载体阶段阈值', () => {
   assert.equal(carrierFor(0), 'char');
-  assert.equal(carrierFor(99), 'char');
-  assert.equal(carrierFor(100), 'word');
-  assert.equal(carrierFor(499), 'word');
-  assert.equal(carrierFor(500), 'phrase');
-  assert.equal(carrierFor(1199), 'phrase');
-  assert.equal(carrierFor(1200), 'sentence');
+  assert.equal(carrierFor(14), 'char');
+  assert.equal(carrierFor(15), 'word');
+  assert.equal(carrierFor(199), 'word');
+  assert.equal(carrierFor(200), 'phrase');
+  assert.equal(carrierFor(599), 'phrase');
+  assert.equal(carrierFor(600), 'sentence');
   assert.equal(carrierFor(3500), 'sentence');
 });
 

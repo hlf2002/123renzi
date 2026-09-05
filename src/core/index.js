@@ -16,7 +16,7 @@ const PROBE_EVERY = 5;     // 每 5 题插入 1 个探测字
 
 const DEFAULT_SETTINGS = {
   delays: { 1: 1, 2: 3, 3: 7, 4: 30 }, // 各仓库复习间隔（天），家长可配
-  carrierThresholds: { word: 100, phrase: 500, sentence: 1200 }, // 只读默认
+  carrierThresholds: { word: 15, phrase: 200, sentence: 600 }, // 只读默认
   sessionNew: SESSION_NEW,
   sessionReview: SESSION_REVIEW,
 };
