@@ -24,10 +24,10 @@ const xinhua = JSON.parse(fs.readFileSync(XINHUA_PATH, 'utf8'));
 console.log('新华字典字数:', xinhua.length);
 
 // 从 explanation 中提取儿童友好的简化解释
-function extractMeaning(explanation) {
-  if (!explanation) return '';
-  // 按行分割
-  const lines = explanation.split('\n').map(l => l.trim()).filter(Boolean);
+function extractMeaning(explanation, more, hanzi) {
+  if (!explanation && !more) return '';
+  const text = (explanation || '') + '\n' + (more || '');
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
 
   // 第一步：找到"本义"后面的内容（最核心的解释）
   let coreMeaning = '';
@@ -48,7 +48,14 @@ function extractMeaning(explanation) {
       if (line.includes('是汉字的一个部首') || line.includes('是汉字部首')) continue;
       if (line.includes('《') || line.includes('》') || line.includes('--')) continue;
       if (/^[〈<][名动形数量代副介连助叹拟声][〉>]$/.test(line)) continue;
-      if (line.length < 5) continue;
+      if (line.length < 3) continue;
+      if (/^[a-z]/i.test(line)) continue; // 跳过拼音行
+      if (line.includes('部首') || line.includes('笔画')) continue;
+      if (line.includes('[') && line.includes(']')) continue; // 跳过英文解释
+      if (line.includes('郑码') || line.includes('gbk') || line.includes('笔顺')) continue;
+      // 跳过只有字+拼音的行（如"螃páng"）
+      if (/^[\u4e00-\u9fa5][a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ\s]+$/i.test(line) && line.length < 10) continue;
+      // 对于"螃"这种字，"螃蟹"就是有意义的解释
       coreMeaning = line;
       break;
     }
@@ -70,10 +77,13 @@ function extractMeaning(explanation) {
     if (coreMeaning.endsWith('的') && coreMeaning.length < 15) {
       coreMeaning = coreMeaning.slice(0, -1);
     }
+    // 对于只有一个词的解释（如"螃蟹"），补充说明
+    if (coreMeaning.length <= 4 && hanzi) {
+      coreMeaning = `${coreMeaning}的${hanzi}`;
+    }
     // 截断到80字
     if (coreMeaning.length > 80) {
       coreMeaning = coreMeaning.slice(0, 80);
-      // 确保在标点处截断
       const lastPunct = Math.max(coreMeaning.lastIndexOf('。'), coreMeaning.lastIndexOf('，'), coreMeaning.lastIndexOf(','));
       if (lastPunct > 20) coreMeaning = coreMeaning.slice(0, lastPunct + 1);
     }
@@ -93,22 +103,43 @@ function extractPOS(explanation, more) {
 }
 
 // 从 more 字段提取适合儿童的简单例句
-function extractExamples(more, hanzi) {
-  if (!more) return [];
-  const lines = more.split('\n').map(l => l.trim()).filter(Boolean);
+function extractExamples(more, explanation, hanzi) {
+  const text = (more || '') + '\n' + (explanation || '');
+  if (!text) return [];
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const examples = [];
   for (const line of lines) {
-    // 过滤条件：包含该字、长度5-20字、不是古文引文、不是词语解释
+    // 必须包含该字
     if (!line.includes(hanzi)) continue;
-    if (line.length < 5 || line.length > 25) continue;
-    if (line.includes('--') || line.includes('《') || line.includes('》')) continue;
-    if (line.includes('[') || line.includes(']')) continue;
+    // 过滤条件
+    if (line.length < 5 || line.length > 30) continue;
     if (line.includes('部首') || line.includes('笔画')) continue;
-    if (line.includes('又如') || line.includes('例如')) continue;
     if (/^[a-z]/i.test(line)) continue; // 跳过拼音行
-    if (line.includes('(') && line.includes(')')) continue; // 跳过带括号解释的行
-    examples.push(line);
-    if (examples.length >= 2) break;
+    if (line.includes('郑码') || line.includes('gbk') || line.includes('笔顺')) continue;
+    if (line.includes('[') && line.includes(']')) continue; // 跳过英文解释
+
+    // 处理古文引文：去掉"--作者《书名》"部分，保留句子
+    let sentence = line;
+    if (sentence.includes('--')) {
+      sentence = sentence.split('--')[0].trim();
+    }
+    if (sentence.includes('《')) {
+      sentence = sentence.split('《')[0].trim();
+    }
+    // 去掉末尾的标点
+    sentence = sentence.replace(/[，,。、；：]+$/, '').trim();
+    // 再次检查
+    if (sentence.length < 5 || sentence.length > 25) continue;
+    if (!sentence.includes(hanzi)) continue;
+    // 过滤文言虚词过多的句子
+    if (/(矣|乎|焉|哉|也|兮|欤)/.test(sentence) && sentence.length < 10) continue;
+
+    // 跳过只有字+拼音的行（如"螃páng"）
+    if (/^[\u4e00-\u9fa5][a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ\s]+$/i.test(sentence) && sentence.length < 10) continue;
+    // 去重
+    if (examples.includes(sentence)) continue;
+    examples.push(sentence);
+    if (examples.length >= 3) break;
   }
   return examples;
 }
@@ -127,10 +158,10 @@ let matched = 0;
 for (const item of xinhua) {
   if (!commonSet.has(item.word)) continue;
   matched++;
-  const meaning = extractMeaning(item.explanation);
+  const meaning = extractMeaning(item.explanation, item.more, item.word);
   if (!meaning) continue;
   const pos = extractPOS(item.explanation, item.more);
-  const examples = extractExamples(item.more, item.word);
+  const examples = extractExamples(item.more, item.explanation, item.word);
   dict[item.word] = {
     pinyin: extractPinyin(item.pinyin),
     strokes: item.strokes || 0,

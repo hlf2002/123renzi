@@ -60,6 +60,7 @@ function loadSentences() {
 /**
  * 组词：从词库中提取包含该字的常用词，优先短词（2-3字）。
  * 只返回词语（word/phrase），不返回句子（sentence）。
+ * 词库中找不到时，用内置常见词表兜底。
  * @param {string} hanzi
  * @param {number} count
  * @returns {Array<{word:string,type:string}>}
@@ -70,8 +71,40 @@ function getWords(hanzi, count = 3) {
     .filter((w) => w.chars && w.chars.includes(hanzi))
     .filter((w) => w.type === 'word' || w.type === 'phrase') // 只返回词语，不返回句子
     .sort((a, b) => a.chars.length - b.chars.length); // 短词优先
-  return candidates.slice(0, count).map((w) => ({ word: w.text, type: w.type }));
+
+  if (candidates.length > 0) {
+    return candidates.slice(0, count).map((w) => ({ word: w.text, type: w.type }));
+  }
+
+  // 兜底：内置常见词表
+  const fallback = FALLBACK_WORDS[hanzi] || [];
+  return fallback.slice(0, count).map((w) => ({ word: w, type: 'word' }));
 }
+
+// 内置常见词表（词库中缺少的常见词，特别是包含生僻字的词）
+const FALLBACK_WORDS = {
+  '柠': ['柠檬'],
+  '檬': ['柠檬'],
+  '螃': ['螃蟹'],
+  '蟹': ['螃蟹', '河蟹', '蟹黄'],
+  '蝴': ['蝴蝶'],
+  '蝶': ['蝴蝶', '蝶泳', '蝴蝶结'],
+  '蜻': ['蜻蜓'],
+  '蜓': ['蜻蜓'],
+  '蚂': ['蚂蚁', '蚂蚱'],
+  '蚁': ['蚂蚁', '白蚁', '蚁穴'],
+  '葡': ['葡萄', '葡萄酒', '葡萄糖'],
+  '萄': ['葡萄', '葡萄干'],
+  '咖': ['咖啡', '咖喱'],
+  '啡': ['咖啡'],
+  '巧': ['巧克力', '巧妙', '巧合'],
+  '克': ['巧克力', '克服', '千克'],
+  '力': ['巧克力', '力量', '努力'],
+  '沙': ['沙发', '沙子', '沙滩'],
+  '发': ['沙发', '发现', '头发'],
+  '吉': ['吉他', '吉祥', '吉利'],
+  '他': ['吉他', '他们', '其他'],
+};
 
 /**
  * 造句：从句子库中提取包含该字的儿童句子。
@@ -98,20 +131,72 @@ function getMeaning(hanzi, pinyin) {
   if (xinhua[hanzi] && xinhua[hanzi].meaning) {
     let meaning = xinhua[hanzi].meaning;
 
+    // 处理字典用法说明：如"〔～蟹〕见蟹"。" → "螃蟹的螃，和蟹组成'螃蟹'"
+    const usageMatch = meaning.match(/〔～(.+?)〕见(.+?)[”"]?[。.]?/);
+    if (usageMatch) {
+      const word = hanzi + usageMatch[1];
+      meaning = `${word}的${hanzi}，和${usageMatch[1]}组成「${word}」`;
+    }
+
+    // 过滤包含英文解释的内容（如"[butterfly]。如蝶子..."）
+    if (meaning.includes('[') && meaning.includes(']')) {
+      const bracketMatch = meaning.match(/\[([^\]]+)\]/);
+      if (bracketMatch) {
+        // 提取英文对应的中文解释，或者用内置解释
+        if (commonMeanings[hanzi]) {
+          meaning = commonMeanings[hanzi];
+        } else {
+          meaning = meaning.replace(/\[[^\]]*\]/g, '').replace(/[。.]如.+/, '').trim();
+        }
+      }
+    }
+
+    // 过滤"蜻〈名〉的蜻"这种解释
+    if (/[〈<][名动形数量代副介连助叹拟声][〉>]/.test(meaning) && meaning.length < 15) {
+      if (commonMeanings[hanzi]) {
+        meaning = commonMeanings[hanzi];
+      } else {
+        meaning = meaning.replace(/[〈<][名动形数量代副介连助叹拟声][〉>]/g, '').replace(/的[\u4e00-\u9fa5]$/, '').trim();
+      }
+    }
+
     // 检测是否为古义（不适合儿童的解释）
-    const isOldMeaning = /(古|本义|古代|正梁|水名|山名|地名|姓氏|通假|假借|本指|原指|起身|腰带|束衣|刑法|法度|甲骨文|金文|小篆|部首)/.test(meaning)
+    const isOldMeaning = /(古|本义|古代|正梁|水名|山名|地名|姓氏|通假|假借|本指|原指|起身|腰带|束衣|刑法|法度|甲骨文|金文|小篆|部首|貌美)/.test(meaning)
       || meaning.length < 4
       || meaning.endsWith('的')
       || /^[a-z\s]+$/i.test(meaning) // 只有拼音没有解释
-      || meaning.includes(hanzi + ' ') && meaning.length < 10; // 只有字+拼音
+      || (meaning.includes(hanzi + ' ') && meaning.length < 10) // 只有字+拼音
+      || /^[\u4e00-\u9fa5][a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ\s（）()]+$/i.test(meaning) // 只有字+拼音
+      || /^[\u4e00-\u9fa5]{1,4}的[\u4e00-\u9fa5]$/.test(meaning); // "美,貌美的好"这种格式
 
     if (isOldMeaning && commonMeanings[hanzi]) {
-      // 古义且有内置常用解释，用内置解释
       meaning = commonMeanings[hanzi];
     } else if (meaning.length < 6 && commonMeanings[hanzi]) {
-      // 解释太短，用内置解释补充
       meaning = commonMeanings[hanzi];
     }
+
+    // 最后兜底：如果解释为空、只有一个字、或是字典用法说明，用组词构造解释
+    if (!meaning || meaning.length <= 1
+      || /^见/.test(meaning) // "见［蜻蜓]"、"见柠檬"的檬"
+      || /^如/.test(meaning) // "如葡萄"的萄"
+      || /（[^\u4e00-\u9fa5]+）/.test(meaning) // 包含繁体字括号
+      || /^[\u4e00-\u9fa5]（/.test(meaning) // "柠（檸）níng"
+    ) {
+      const words = getWords(hanzi, 1);
+      if (words.length > 0) {
+        const word = words[0].word;
+        // 找到该字在词中的位置，构造解释
+        const idx = word.indexOf(hanzi);
+        if (idx >= 0 && word.length >= 2) {
+          meaning = `${word}的${hanzi}，和其他字组成「${word}」`;
+        } else {
+          meaning = `这个字读「${hanzi}」，常见于「${word}」一词`;
+        }
+      } else {
+        meaning = `这个字读「${hanzi}」，是一个常用汉字。`;
+      }
+    }
+
     return meaning;
   }
 
@@ -239,10 +324,11 @@ const commonMeanings = {
   };
 
 /**
- * 造句：三级降级策略
+ * 造句：四级降级策略（按适合儿童的程度排序）
  * 1. 优先从儿童句子库（sentences.json）提取
- * 2. 其次从新华字典例句中提取（筛选简单的）
- * 3. 都没有则返回空（teach中会用常用词展示代替）
+ * 2. 其次用组词模板造句（基于常用词生成简单句子）
+ * 3. 最后从新华字典例句中提取（兜底，筛选简单的）
+ * 4. 都没有则返回空
  * @param {string} hanzi
  * @param {number} count
  * @returns {Array<string>}
@@ -260,13 +346,24 @@ function getSentences(hanzi, count = 2) {
     return kidSentences.slice(0, count);
   }
 
-  // 2. 从新华字典例句中提取（筛选简单、适合儿童的）
+  // 2. 用组词模板造句（比新华字典古文更适合儿童）
+  const templateSentence = makeTemplateSentence(hanzi);
+  if (templateSentence) {
+    return [templateSentence];
+  }
+
+  // 3. 从新华字典例句中提取（兜底，严格筛选）
   if (xinhua[hanzi] && xinhua[hanzi].examples) {
     const simpleExamples = xinhua[hanzi].examples.filter((s) => {
-      // 过滤太复杂或不适合儿童的句子
-      if (s.length > 20) return false;
-      if (s.includes('霹雳') || s.includes('崩') || s.includes('歹徒') || s.includes('碴')) return false;
-      if (s.includes('亦') || s.includes('矣') || s.includes('乎')) return false; // 文言虚词
+      if (s.length > 20 || s.length < 5) return false;
+      // 过滤古文
+      if (/(矣|乎|焉|哉|也|兮|欤|亦|之乎者也)/.test(s)) return false;
+      // 过滤包含拼音、数字、括号解释的行
+      if (/[a-zāáǎàēéěèīíǐìōóǒòūúǔù]/.test(s)) return false;
+      if (/\d/.test(s)) return false;
+      if (s.includes('[') || s.includes(']') || s.includes('〔') || s.includes('〕')) return false;
+      // 过滤不适合儿童的词
+      if (/(霹雳|崩|歹徒|碴|刑法|酒浸|治风)/.test(s)) return false;
       return true;
     });
     if (simpleExamples.length > 0) {
@@ -275,6 +372,46 @@ function getSentences(hanzi, count = 2) {
   }
 
   return [];
+}
+
+/**
+ * 用组词模板造句：基于常用词生成简单、适合儿童的句子。
+ * @param {string} hanzi
+ * @returns {string|null}
+ */
+function makeTemplateSentence(hanzi) {
+  const words = getWords(hanzi, 3);
+  if (words.length === 0) return null;
+
+  // 取第一个常用词
+  const word = words[0].word;
+  const xinhua = loadXinhua();
+  const pos = xinhua[hanzi] && xinhua[hanzi].pos ? xinhua[hanzi].pos[0] : '';
+
+  // 动物/食物类名词模板
+  const animalWords = ['螃蟹', '蝴蝶', '蜻蜓', '蚂蚁', '蜜蜂', '小鸟', '小鱼', '兔子', '老虎', '狮子', '大象', '猴子', '熊猫', '青蛙', '虫子'];
+  const foodWords = ['苹果', '香蕉', '西瓜', '葡萄', '草莓', '蛋糕', '饼干', '糖果', '米饭', '面条', '饺子', '包子', '牛奶', '果汁'];
+
+  if (animalWords.includes(word) || (pos === '名' && /(蟹|蝶|蜓|蚁|蜂|鸟|鱼|兔|虎|狮|象|猴|猫|蛙|虫)/.test(word))) {
+    return `${word}真有趣`;
+  }
+  if (foodWords.includes(word) || (pos === '名' && /(果|蕉|瓜|萄|莓|糕|干|糖|饭|面|饺|包|奶|汁)/.test(word))) {
+    return `我喜欢吃${word}`;
+  }
+
+  // 根据词性选择模板
+  if (pos === '动') {
+    return `我喜欢${word}`;
+  }
+  if (pos === '形') {
+    return `这个东西很${word}`;
+  }
+  if (pos === '名') {
+    return `我看到了${word}`;
+  }
+
+  // 通用模板
+  return `${word}真有意思`;
 }
 
 /**
