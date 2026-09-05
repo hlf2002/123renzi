@@ -82,6 +82,37 @@ function extractMeaning(explanation) {
   return coreMeaning;
 }
 
+// 提取词性（名/动/形/数/量/代/副/介/连/助/叹/拟声）
+function extractPOS(explanation, more) {
+  const text = (explanation || '') + '\n' + (more || '');
+  const posMatch = text.match(/[〈<]([名动形数量代副介连助叹拟声])[〉>]/g);
+  if (!posMatch) return '';
+  // 去重
+  const posSet = new Set(posMatch.map(p => p.replace(/[〈<>〉]/g, '')));
+  return [...posSet].join('');
+}
+
+// 从 more 字段提取适合儿童的简单例句
+function extractExamples(more, hanzi) {
+  if (!more) return [];
+  const lines = more.split('\n').map(l => l.trim()).filter(Boolean);
+  const examples = [];
+  for (const line of lines) {
+    // 过滤条件：包含该字、长度5-20字、不是古文引文、不是词语解释
+    if (!line.includes(hanzi)) continue;
+    if (line.length < 5 || line.length > 25) continue;
+    if (line.includes('--') || line.includes('《') || line.includes('》')) continue;
+    if (line.includes('[') || line.includes(']')) continue;
+    if (line.includes('部首') || line.includes('笔画')) continue;
+    if (line.includes('又如') || line.includes('例如')) continue;
+    if (/^[a-z]/i.test(line)) continue; // 跳过拼音行
+    if (line.includes('(') && line.includes(')')) continue; // 跳过带括号解释的行
+    examples.push(line);
+    if (examples.length >= 2) break;
+  }
+  return examples;
+}
+
 // 提取拼音（取第一个读音）
 function extractPinyin(pinyin) {
   if (!pinyin) return '';
@@ -98,10 +129,14 @@ for (const item of xinhua) {
   matched++;
   const meaning = extractMeaning(item.explanation);
   if (!meaning) continue;
+  const pos = extractPOS(item.explanation, item.more);
+  const examples = extractExamples(item.more, item.word);
   dict[item.word] = {
     pinyin: extractPinyin(item.pinyin),
     strokes: item.strokes || 0,
     meaning,
+    pos,
+    examples,
   };
 }
 

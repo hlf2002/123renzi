@@ -59,6 +59,7 @@ function loadSentences() {
 
 /**
  * 组词：从词库中提取包含该字的常用词，优先短词（2-3字）。
+ * 只返回词语（word/phrase），不返回句子（sentence）。
  * @param {string} hanzi
  * @param {number} count
  * @returns {Array<{word:string,type:string}>}
@@ -67,6 +68,7 @@ function getWords(hanzi, count = 3) {
   const words = loadWords();
   const candidates = words
     .filter((w) => w.chars && w.chars.includes(hanzi))
+    .filter((w) => w.type === 'word' || w.type === 'phrase') // 只返回词语，不返回句子
     .sort((a, b) => a.chars.length - b.chars.length); // 短词优先
   return candidates.slice(0, count).map((w) => ({ word: w.text, type: w.type }));
 }
@@ -95,12 +97,19 @@ function getMeaning(hanzi, pinyin) {
   // 1. 优先使用新华字典解释
   if (xinhua[hanzi] && xinhua[hanzi].meaning) {
     let meaning = xinhua[hanzi].meaning;
-    // 如果新华字典解释太短（<6字），尝试用内置解释补充
-    if (meaning.length < 6 && commonMeanings[hanzi]) {
+
+    // 检测是否为古义（不适合儿童的解释）
+    const isOldMeaning = /(古|本义|古代|正梁|水名|山名|地名|姓氏|通假|假借|本指|原指|起身|腰带|束衣|刑法|法度|甲骨文|金文|小篆|部首)/.test(meaning)
+      || meaning.length < 4
+      || meaning.endsWith('的')
+      || /^[a-z\s]+$/i.test(meaning) // 只有拼音没有解释
+      || meaning.includes(hanzi + ' ') && meaning.length < 10; // 只有字+拼音
+
+    if (isOldMeaning && commonMeanings[hanzi]) {
+      // 古义且有内置常用解释，用内置解释
       meaning = commonMeanings[hanzi];
-    }
-    // 如果解释末尾是"的"且太短，补充说明
-    if (meaning.endsWith('的') && meaning.length < 10 && commonMeanings[hanzi]) {
+    } else if (meaning.length < 6 && commonMeanings[hanzi]) {
+      // 解释太短，用内置解释补充
       meaning = commonMeanings[hanzi];
     }
     return meaning;
@@ -212,23 +221,109 @@ const commonMeanings = {
     '了': '表示动作已经完成',
     '着': '表示动作正在进行',
     '过': '表示动作曾经发生',
+    // 补充常见字的现代常用义（新华字典本义是古义的字）
+    '极': '顶点，尽头；非常',
+    '洋': '海洋，广大；外国的',
+    '作': '做，进行；作品',
+    '给': '交付，送与；为，替',
+    '带': '带领，携带；带子',
+    '法': '方法，办法；法律',
+    '傍': '靠近，临近',
+    '坏': '品质恶劣，有害的；损坏',
+    '眼': '眼睛，眼珠',
+    '睛': '眼珠，眼睛',
+    '宽': '宽阔，宽大；放宽',
+    '找': '寻找，寻求',
+    '变': '变化，改变',
+    '海': '大海，海洋',
   };
 
 /**
- * 用法说明模板（首版）：解释该字在句子中的常见用法。
- * 未来接入 AI 后用 AI 生成准确用法说明。
+ * 造句：三级降级策略
+ * 1. 优先从儿童句子库（sentences.json）提取
+ * 2. 其次从新华字典例句中提取（筛选简单的）
+ * 3. 都没有则返回空（teach中会用常用词展示代替）
+ * @param {string} hanzi
+ * @param {number} count
+ * @returns {Array<string>}
+ */
+function getSentences(hanzi, count = 2) {
+  const sentences = loadSentences();
+  const xinhua = loadXinhua();
+
+  // 1. 优先从儿童句子库提取
+  const kidSentences = sentences
+    .filter((s) => s.text && s.text.includes(hanzi))
+    .map((s) => s.text);
+
+  if (kidSentences.length > 0) {
+    return kidSentences.slice(0, count);
+  }
+
+  // 2. 从新华字典例句中提取（筛选简单、适合儿童的）
+  if (xinhua[hanzi] && xinhua[hanzi].examples) {
+    const simpleExamples = xinhua[hanzi].examples.filter((s) => {
+      // 过滤太复杂或不适合儿童的句子
+      if (s.length > 20) return false;
+      if (s.includes('霹雳') || s.includes('崩') || s.includes('歹徒') || s.includes('碴')) return false;
+      if (s.includes('亦') || s.includes('矣') || s.includes('乎')) return false; // 文言虚词
+      return true;
+    });
+    if (simpleExamples.length > 0) {
+      return simpleExamples.slice(0, count);
+    }
+  }
+
+  return [];
+}
+
+/**
+ * 用法说明：结合词性和造句，用儿童能理解的语言解释。
  * @param {string} hanzi
  * @param {string} sentence
+ * @param {string} [pos] 词性（名/动/形/数/量/代/副/介/连/助/叹/拟声）
  * @returns {string}
  */
-function getUsage(hanzi, sentence) {
-  if (!sentence) return '';
-  const idx = sentence.indexOf(hanzi);
-  if (idx < 0) return '';
-  // 简化用法说明：指出字在句子中的位置和作用
-  const before = sentence.slice(Math.max(0, idx - 3), idx);
-  const after = sentence.slice(idx + 1, idx + 4);
-  return `在句子「${sentence}」中，「${hanzi}」出现在「${before}...${after}」的位置，是句子的重要组成部分。`;
+function getUsage(hanzi, sentence, pos) {
+  const xinhua = loadXinhua();
+  const wordPOS = pos || (xinhua[hanzi] && xinhua[hanzi].pos) || '';
+
+  // 词性的儿童友好解释
+  const posExplain = {
+    '名': '表示人、事物或地方的名字',
+    '动': '表示一个动作或行为',
+    '形': '形容事物的样子或性质',
+    '数': '表示数量',
+    '量': '表示事物的单位',
+    '代': '代替人或事物的名称',
+    '副': '修饰动作，表示程度、时间等',
+    '介': '引出时间、地点、对象等',
+    '连': '连接词语或句子',
+    '助': '帮助句子表达语气',
+    '叹': '表示感叹或应答',
+    '拟声': '模拟声音',
+  };
+
+  let usage = '';
+
+  // 先解释词性
+  if (wordPOS && posExplain[wordPOS[0]]) {
+    usage = `「${hanzi}」是${wordPOS[0]}词，${posExplain[wordPOS[0]]}。`;
+  }
+
+  // 再结合造句解释在句子中的用法
+  if (sentence && sentence.includes(hanzi)) {
+    const idx = sentence.indexOf(hanzi);
+    const before = sentence.slice(Math.max(0, idx - 2), idx);
+    const after = sentence.slice(idx + 1, idx + 3);
+    if (usage) {
+      usage += `在「${sentence}」中，「${hanzi}」用在「${before}...${after}」的位置。`;
+    } else {
+      usage = `在「${sentence}」中，「${hanzi}」用在「${before}...${after}」的位置。`;
+    }
+  }
+
+  return usage;
 }
 
 /**
@@ -244,13 +339,16 @@ async function teach(char, context = {}) {
   const sentences = getSentences(hanzi, 2);
   const exampleSentence = context.currentSentence || sentences[0] || '';
 
+  const xinhua = loadXinhua();
+  const pos = xinhua[hanzi] && xinhua[hanzi].pos ? xinhua[hanzi].pos : '';
+
   let meaning = getMeaning(hanzi, pinyin);
-  let usage = getUsage(hanzi, exampleSentence);
+  let usage = getUsage(hanzi, exampleSentence, pos);
 
   // AI 接口：如果注入了 AI 教学生成器，用 AI 生成更准确的解释和用法
   if (aiTeacher) {
     try {
-      const aiResult = await aiTeacher.generate(hanzi, { pinyin, words, sentences, currentSentence: exampleSentence });
+      const aiResult = await aiTeacher.generate(hanzi, { pinyin, words, sentences, currentSentence: exampleSentence, pos });
       if (aiResult && aiResult.meaning) meaning = aiResult.meaning;
       if (aiResult && aiResult.usage) usage = aiResult.usage;
     } catch (e) {
@@ -275,6 +373,7 @@ async function teach(char, context = {}) {
     sentences,
     usage,
     exampleSentence,
+    pos,
     speakParts,
   };
 }
