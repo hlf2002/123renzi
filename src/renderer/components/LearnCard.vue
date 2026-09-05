@@ -35,12 +35,6 @@
           {{ teaching.exampleSentence }}
         </div>
       </div>
-
-      <!-- 句子解读 -->
-      <div class="lc-section" v-if="teaching.usage">
-        <div class="lc-label">💡 句子解读</div>
-        <div class="lc-text lc-usage">{{ teaching.usage }}</div>
-      </div>
     </div>
 
     <!-- 操作按钮 -->
