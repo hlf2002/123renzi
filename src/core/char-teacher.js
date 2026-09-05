@@ -2202,10 +2202,10 @@ async function teach(char, context = {}) {
     }
   }
 
-  // 语音朗读的分段文本：只读字、组词、造句正文
+  // 语音朗读的分段文本：只读字、组词（逗号分隔）、造句正文
   const speakParts = [
     hanzi,
-    words.length > 0 ? words.map(w => w.word).join('、') : '',
+    words.length > 0 ? words.map(w => w.word).join('，') : '',
     exampleSentence || '',
   ].filter(Boolean);
 
