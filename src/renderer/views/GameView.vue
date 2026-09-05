@@ -312,8 +312,7 @@ onMounted(loadBatch);
   border-color: #d94f2b;
   background: #ffe3d6;
   color: #d94f2b;
-  text-decoration: line-through;
-  text-decoration-thickness: 3px;
+  /* 不划掉字，只改变背景色标记 */
 }
 .mark-tag {
   position: absolute;
