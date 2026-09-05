@@ -2202,12 +2202,22 @@ async function teach(char, context = {}) {
     }
   }
 
-  // 语音朗读的分段文本：只读字、组词（逗号分隔）、造句正文
-  const speakParts = [
-    hanzi,
-    words.length > 0 ? words.map(w => w.word).join('，') : '',
-    exampleSentence || '',
-  ].filter(Boolean);
+  // 语音朗读：组成一个完整的、有感情的句子
+  // 格式：小朋友，这个字念X，组词1的X，组词2的X，组词3的X，造句。
+  let speakText = `小朋友，这个字念${hanzi}`;
+  if (words.length > 0) {
+    const wordParts = words.slice(0, 3).map(w => `${w.word}的${hanzi}`);
+    speakText += '，' + wordParts.join('，');
+  }
+  if (exampleSentence) {
+    speakText += '，' + exampleSentence;
+  }
+  // 确保以句号结尾，但避免双句号
+  if (!speakText.endsWith('。')) {
+    speakText += '。';
+  }
+
+  const speakParts = [speakText];
 
   return {
     hanzi,
