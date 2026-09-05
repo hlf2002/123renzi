@@ -480,11 +480,6 @@ function getUsage(hanzi, sentence, pos, meaning) {
     } else {
       usage += `「${hanzi}」是一个${wordPOS[0] || '常用'}字。`;
     }
-    // 再指出位置
-    const idx = sentence.indexOf(hanzi);
-    const before = sentence.slice(Math.max(0, idx - 2), idx);
-    const after = sentence.slice(idx + 1, idx + 3);
-    usage += `它用在「${before}...${after}」的位置。`;
   } else if (wordPOS) {
     // 没有造句时，只解释词性
     usage = `「${hanzi}」是${wordPOS[0]}词，${posExplain[wordPOS[0]] || ''}。`;
