@@ -18,8 +18,8 @@
     <!-- 主游戏区 -->
     <template v-else-if="phase === 'playing' || phase === 'learning'">
       <div class="stage" v-if="current">
-        <div class="kind-tip">{{ kindTip }}</div>
-        <div class="sentence" :class="current.kind === 'probe' ? 'single' : carrierClass">
+        <div class="kind-tip" v-if="phase === 'playing'">{{ kindTip }}</div>
+        <div class="sentence" v-if="phase === 'playing'" :class="current.kind === 'probe' ? 'single' : carrierClass">
           <!-- 字格：可点选 -->
           <div
             v-for="(ch, i) in current.charsView"
@@ -341,7 +341,7 @@ onMounted(loadBatch);
 .btn.ghost { background: #f0ece4; color: #8a6d3b; }
 
 .learn-area { width: 100%; max-width: 420px; }
-.learn-next { display: flex; justify-content: center; margin-top: 18px; }
+.learn-next { display: flex; justify-content: center; margin-top: 12px; }
 
 .foot { padding: 8px 26px 18px; }
 .progress-line { text-align: center; color: #b59a72; font-size: 13px; margin-bottom: 8px; }

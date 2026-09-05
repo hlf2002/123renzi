@@ -139,50 +139,51 @@ watch(() => props.char.hanzi, async () => {
 <style scoped>
 .learn-card {
   border-radius: 24px;
-  padding: 24px 20px;
+  padding: 16px 20px;
   text-align: center;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  max-height: 80vh;
-  overflow-y: auto;
+  /* 一屏显示完整，不滚动 */
+  max-height: none;
+  overflow: visible;
 }
 .lc-char {
-  font-size: 88px;
+  font-size: 64px;
   font-weight: 900;
   color: #d94f2b;
   line-height: 1.1;
   cursor: pointer;
 }
 .lc-pinyin {
-  font-size: 26px;
+  font-size: 22px;
   color: #8a6d3b;
-  margin: 4px 0 12px;
+  margin: 2px 0 8px;
   letter-spacing: 2px;
 }
 .lc-loading {
   color: #b0761f;
-  font-size: 15px;
-  padding: 12px 0;
+  font-size: 14px;
+  padding: 8px 0;
 }
 .lc-content {
   text-align: left;
-  margin: 8px 0;
+  margin: 4px 0;
 }
 .lc-section {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   background: rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 8px 12px;
 }
 .lc-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #b0761f;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .lc-text {
-  font-size: 16px;
+  font-size: 15px;
   color: #5a4a2a;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 .lc-sentence {
   cursor: pointer;
