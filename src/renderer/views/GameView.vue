@@ -129,12 +129,15 @@ async function loadBatch() {
   phase.value = 'loading';
   error.value = '';
   try {
-    // 并行获取用户昵称和会话
-    const [users, s] = await Promise.all([
-      api.users.list(),
-      api.session.get(userId),
-    ]);
-    const user = users.find(u => u.id === userId);
+    // 并行获取用户昵称和会话，用户列表失败不影响主流程
+    let users = [];
+    try {
+      users = await api.users.list();
+    } catch (e) {
+      console.warn('获取用户列表失败:', e.message);
+    }
+    const s = await api.session.get(userId);
+    const user = users.find(u => u.user_id === userId);
     if (user && user.nickname) {
       userNickname.value = user.nickname;
     }
