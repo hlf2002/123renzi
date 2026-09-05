@@ -139,6 +139,12 @@ function getSentences(hanzi, count = 2) {
 function getMeaning(hanzi, pinyin) {
   const xinhua = loadXinhua();
 
+  // 0. 高频虚词直接用内置解释（新华字典的古义不适合儿童）
+  const functionWords = ['的', '了', '是', '在', '有', '和', '就', '不', '也', '都', '还', '又', '再', '才', '却', '便', '与', '及', '或', '而', '且', '但', '然', '则', '乃', '即', '若', '如', '因', '为', '所', '以', '之', '乎', '者', '也', '矣', '焉', '哉', '吗', '呢', '吧', '啊', '呀', '哇', '哦', '唉', '嗯'];
+  if (functionWords.includes(hanzi) && commonMeanings[hanzi]) {
+    return commonMeanings[hanzi];
+  }
+
   // 1. 优先使用新华字典解释
   if (xinhua[hanzi] && xinhua[hanzi].meaning) {
     let meaning = xinhua[hanzi].meaning;
@@ -173,8 +179,9 @@ function getMeaning(hanzi, pinyin) {
     }
 
     // 检测是否为古义（不适合儿童的解释）
-    const isOldMeaning = /(古|本义|古代|正梁|水名|山名|地名|姓氏|通假|假借|本指|原指|起身|腰带|束衣|刑法|法度|甲骨文|金文|小篆|部首|貌美)/.test(meaning)
+    const isOldMeaning = /(古|本义|古代|正梁|水名|山名|地名|姓氏|通假|假借|本指|原指|起身|腰带|束衣|刑法|法度|甲骨文|金文|小篆|部首|貌美|《|》|郑笺|曰|云|①|②|③|④|⑤)/.test(meaning)
       || meaning.length < 4
+      || meaning.length > 50
       || meaning.endsWith('的')
       || /^[a-z\s]+$/i.test(meaning) // 只有拼音没有解释
       || (meaning.includes(hanzi + ' ') && meaning.length < 10) // 只有字+拼音
@@ -316,6 +323,15 @@ const commonMeanings = {
     '在': '表示人或事物的位置',
     '和': '表示并列关系',
     '了': '表示动作已经完成',
+    '就': '表示承接、肯定',
+    '不': '表示否定',
+    '也': '表示同样、并行',
+    '都': '表示全部',
+    '还': '表示仍然、继续',
+    '又': '表示重复、继续',
+    '才': '表示刚刚、仅仅',
+    '却': '表示转折',
+    '便': '表示就、即',
     '着': '表示动作正在进行',
     '过': '表示动作曾经发生',
     // 补充常见字的现代常用义（新华字典本义是古义的字）
