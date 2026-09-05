@@ -5,6 +5,7 @@
  */
 
 const content = require('./content');
+const contentGenerator = require('./content-generator');
 const scheduler = require('./scheduler');
 const engine = require('./engine');
 const levels = require('./levels');
@@ -67,28 +68,46 @@ function createAppCore(storage, pack) {
     return pick;
   }
 
-  /** 把字 id 集合组词/组句；词句不足时退化为单字格 */
+  /** 把字 id 集合组词/组句；固定池无候选时用混合生成器生成；都没有才退化为单字格 */
   function buildItems(userId, charIds, maxCarrier) {
     const test = new Set(charIds.map((id) => (charById(id) ? charById(id).hanzi : null)).filter(Boolean));
     if (test.size === 0) return [];
     const known = knownHanziSet(userId);
-    const { items, actualType } = content.pickItemsWithFallback(pack.pool, known, test, maxCarrier, charIds.length);
-    if (items.length === 0) {
-      return charIds.slice(0, 8).map((id, i) => {
-        const c = charById(id);
-        if (!c) return null;
-        return { content_id: -1 - i, text: c.hanzi, type: 'char', chars: [{ char_id: c.char_id, hanzi: c.hanzi, pinyin: c.pinyin }] };
-      }).filter(Boolean);
+
+    // 1. 优先从固定词库选
+    const { items } = content.pickItemsWithFallback(pack.pool, known, test, maxCarrier, charIds.length);
+    if (items.length > 0) {
+      return items.map((e) => ({
+        content_id: e.content_id,
+        text: e.text,
+        type: e.type,
+        chars: e.chars.map((h) => {
+          const c = storage.getCharByHanzi(h);
+          return { char_id: c ? c.char_id : null, hanzi: h, pinyin: c ? c.pinyin : '' };
+        }),
+      }));
     }
-    return items.map((e) => ({
-      content_id: e.content_id,
-      text: e.text,
-      type: e.type,
-      chars: e.chars.map((h) => {
-        const c = storage.getCharByHanzi(h);
-        return { char_id: c ? c.char_id : null, hanzi: h, pinyin: c ? c.pinyin : '' };
-      }),
-    }));
+
+    // 2. 固定池无候选，用混合生成器生成词语/句子
+    const generated = contentGenerator.generateItems(known, test, maxCarrier, charIds.length);
+    if (generated.length > 0) {
+      return generated.map((e, i) => ({
+        content_id: -1000 - i, // 生成内容用负 id 区分
+        text: e.text,
+        type: e.type,
+        chars: e.chars.map((h) => {
+          const c = storage.getCharByHanzi(h);
+          return { char_id: c ? c.char_id : null, hanzi: h, pinyin: c ? c.pinyin : '' };
+        }),
+      }));
+    }
+
+    // 3. 生成器也无法生成（known 太少），退化为单字格
+    return charIds.slice(0, 8).map((id, i) => {
+      const c = charById(id);
+      if (!c) return null;
+      return { content_id: -1 - i, text: c.hanzi, type: 'char', chars: [{ char_id: c.char_id, hanzi: c.hanzi, pinyin: c.pinyin }] };
+    }).filter(Boolean);
   }
 
   function getSession(userId, now = Date.now()) {
