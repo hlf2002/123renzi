@@ -26,10 +26,11 @@
     "vite": "^5.4.8"
   },
   "build": {
-    "appId": "com.123recognize.app",
+    "appId": "com.123renzi.app",
     "productName": "123认字",
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "files": [
       "src/**/*",
@@ -38,12 +39,14 @@
     ],
     "asar": true,
     "mac": {
+      "icon": "build/icon.icns",
       "target": [
         { "target": "dmg", "arch": ["arm64"] }
       ],
       "category": "public.app-category.education"
     },
     "win": {
+      "icon": "build/icon.png",
       "target": [
         { "target": "nsis", "arch": ["x64"] }
       ]

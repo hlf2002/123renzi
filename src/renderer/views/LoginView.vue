@@ -1,6 +1,7 @@
 <template>
   <div class="login">
     <div class="hero">
+      <img src="/logo.png" alt="123认字" class="app-logo" />
       <h1>123认字</h1>
       <p class="sub">在句子和词语里，轻轻松松认识越来越多的字！</p>
     </div>
@@ -120,6 +121,14 @@ function checkPin() {
   margin: 0;
   letter-spacing: 4px;
   font-weight: 900;
+}
+.app-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 18px rgba(217, 79, 43, 0.18);
+  object-fit: cover;
 }
 .sub { color: #8a6d3b; font-size: 16px; margin: 8px 0 30px; }
 .user-grid {

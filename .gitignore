@@ -5,6 +5,10 @@ node_modules/
 dist/
 release/
 
+# 图标中间产物（保留 icon.png / icon.icns 供打包）
+build/icon-source.png
+build/icon.iconset/
+
 # 日志与系统文件
 *.log
 .DS_Store
