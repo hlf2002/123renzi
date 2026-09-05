@@ -151,10 +151,10 @@ export function speak(text, opts = {}) {
 }
 
 /**
- * 朗读教学内容（字、组词、造句拼接成一段）
+ * 朗读教学内容（字、组词、造句拼接成一段，每段中间加句号）
  */
 export function speakTeaching(parts) {
-  const text = parts.filter(Boolean).join('，');
+  const text = parts.filter(Boolean).join('。');
   if (!text) return;
   speak(text, { speed: 0.85 });
 }
