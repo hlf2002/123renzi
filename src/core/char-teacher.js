@@ -504,7 +504,9 @@ function getUsage(hanzi, sentence, pos, meaning) {
  */
 async function teach(char, context = {}) {
   const hanzi = char.hanzi;
-  const pinyin = char.pinyin || '';
+  const xinhua = loadXinhua();
+  // 优先使用新华字典的拼音，其次用字库传入的拼音
+  const pinyin = (xinhua[hanzi] && xinhua[hanzi].pinyin) || char.pinyin || '';
   const words = getWords(hanzi, 3);
   const sentences = getSentences(hanzi, 2);
 
@@ -516,7 +518,6 @@ async function teach(char, context = {}) {
   }
   const exampleSentence = currentSentence || sentences[0] || '';
 
-  const xinhua = loadXinhua();
   const pos = xinhua[hanzi] && xinhua[hanzi].pos ? xinhua[hanzi].pos : '';
 
   let meaning = getMeaning(hanzi, pinyin);
