@@ -5,12 +5,12 @@ const { carrierFor, pickItems, pickItemsWithFallback } = require('../src/core/co
 
 test('carrierFor 载体阶段阈值', () => {
   assert.equal(carrierFor(0), 'char');
-  assert.equal(carrierFor(9), 'char');
-  assert.equal(carrierFor(10), 'word');
-  assert.equal(carrierFor(59), 'word');
-  assert.equal(carrierFor(60), 'phrase');
-  assert.equal(carrierFor(149), 'phrase');
-  assert.equal(carrierFor(150), 'sentence');
+  assert.equal(carrierFor(4), 'char');
+  assert.equal(carrierFor(5), 'word');
+  assert.equal(carrierFor(19), 'word');
+  assert.equal(carrierFor(20), 'phrase');
+  assert.equal(carrierFor(49), 'phrase');
+  assert.equal(carrierFor(50), 'sentence');
   assert.equal(carrierFor(3500), 'sentence');
 });
 

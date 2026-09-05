@@ -77,13 +77,17 @@ for (let i = 1; i < lines.length; i++) {
   words.push({ content_id: words.length + 1, text: word, type, chars: hanziList });
 }
 
-// 补充儿童常用短句
-for (const s of KID_SENTENCES) {
-  if (seen.has(s)) continue;
-  const hanziList = Array.from(s).filter((c) => /\p{Script=Han}/u.test(c));
-  if (!hanziList.every((c) => charSet.has(c))) continue;
-  seen.add(s);
-  words.push({ content_id: words.length + 1, text: s, type: 'sentence', chars: hanziList });
+// 补充儿童常用短句（从 sentences.json 读取，170个按难度分级的儿童句子）
+const SENTENCES_PATH = path.join(__dirname, '..', 'src', 'assets', 'content', 'full', 'sentences.json');
+if (fs.existsSync(SENTENCES_PATH)) {
+  const kidSentences = JSON.parse(fs.readFileSync(SENTENCES_PATH, 'utf8'));
+  for (const s of kidSentences) {
+    if (seen.has(s.text)) continue;
+    const hanziList = Array.from(s.text).filter((c) => /\p{Script=Han}/u.test(c));
+    if (!hanziList.every((c) => charSet.has(c))) continue;
+    seen.add(s.text);
+    words.push({ content_id: words.length + 1, text: s.text, type: 'sentence', chars: hanziList });
+  }
 }
 
 // 重新编号

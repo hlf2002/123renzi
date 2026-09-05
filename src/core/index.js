@@ -16,7 +16,7 @@ const PROBE_EVERY = 5;     // 每 5 题插入 1 个探测字
 
 const DEFAULT_SETTINGS = {
   delays: { 1: 1, 2: 3, 3: 7, 4: 30 }, // 各仓库复习间隔（天），家长可配
-  carrierThresholds: { word: 10, phrase: 60, sentence: 150 }, // 只读默认
+  carrierThresholds: { word: 5, phrase: 20, sentence: 50 }, // 只读默认
   sessionNew: SESSION_NEW,
   sessionReview: SESSION_REVIEW,
 };
@@ -97,9 +97,18 @@ function createAppCore(storage, pack) {
     }).filter(Boolean);
   }
 
+  // 年级顺序映射（用于判断是否强制升级载体）
+  const GRADE_ORDER = { '幼小衔接': 0, '一年级': 1, '二年级': 2, '三年级': 3, '四年级': 4, '五年级': 5, '六年级': 6, '初中': 7, '高中': 8 };
+
   function getSession(userId, now = Date.now()) {
     const lv = engine.ensureLevel(storage, userId, now);
-    const carrier = content.carrierFor(lv.skill_level);
+    let carrier = content.carrierFor(lv.skill_level);
+    // 年级≥二年级时强制启用句子（用户需求：升到二年级就能看到句子）
+    // pickItemsWithFallback 会逐级放宽，找不到句子时自动退到短语/词/单字
+    const lvView = engine.getLevelView(storage, userId, now);
+    if ((GRADE_ORDER[lvView.grade] || 0) >= 2) {
+      carrier = 'sentence';
+    }
     const newChars = pickNewChars(userId, now);
     const due = scheduler.getDue(storage, userId, now);
     const reviewChars = due.slice(0, SESSION_REVIEW).map((p) => p.char_id);
@@ -110,7 +119,7 @@ function createAppCore(storage, pack) {
       reviewItems: buildItems(userId, reviewChars, carrier),
       probe: probe ? { char_id: probe.char_id, hanzi: probe.hanzi, pinyin: probe.pinyin } : null,
       counts: scheduler.warehouseCounts(storage, userId),
-      level: engine.getLevelView(storage, userId),
+      level: lvView,
     };
   }
 
