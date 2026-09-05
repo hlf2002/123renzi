@@ -23,17 +23,30 @@ function loadVoices() {
   const voices = window.speechSynthesis.getVoices();
   if (voices.length === 0) return;
   voicesLoaded = true;
+  // 只选普通话（zh-CN），排除粤语(zh-HK)、台湾国语(zh-TW)等
+  const zhCNVoices = voices.filter(v => {
+    if (!v.lang) return false;
+    const lang = v.lang.toLowerCase();
+    return lang === 'zh-cn' || lang.startsWith('zh_cn') || lang.startsWith('zh-cn');
+  });
   // 优先选择中文女声：按名称关键词匹配
-  const femaleKeywords = ['female', 'woman', 'girl', 'xiaoxiao', 'yaoyao', 'huihui', 'tingting', 'sinji', 'meijia', 'sin-ji', '女', '晓晓', '瑶瑶', '慧慧', '婷婷'];
-  const zhVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('zh'));
-  // 先找中文女声
+  const femaleKeywords = ['female', 'woman', 'girl', 'xiaoxiao', 'yaoyao', 'huihui', 'tingting', 'meijia', '晓晓', '瑶瑶', '慧慧', '婷婷', '小燕', '小云', '小美'];
+  // 先找普通话女声
   for (const kw of femaleKeywords) {
-    const found = zhVoices.find(v => v.name.toLowerCase().includes(kw.toLowerCase()));
+    const found = zhCNVoices.find(v => v.name.toLowerCase().includes(kw.toLowerCase()));
     if (found) { femaleVoice = found; break; }
   }
-  // 没找到明确女声，用第一个中文声音
-  if (!femaleVoice && zhVoices.length > 0) {
-    femaleVoice = zhVoices[0];
+  // 没找到明确女声，用第一个普通话声音
+  if (!femaleVoice && zhCNVoices.length > 0) {
+    femaleVoice = zhCNVoices[0];
+  }
+  // 最后兜底：所有中文声音中找女声（但仍优先普通话）
+  if (!femaleVoice) {
+    const allZh = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('zh'));
+    for (const kw of femaleKeywords) {
+      const found = allZh.find(v => v.name.toLowerCase().includes(kw.toLowerCase()));
+      if (found) { femaleVoice = found; break; }
+    }
   }
 }
 
