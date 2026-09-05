@@ -1,0 +1,1091 @@
+[
+  {
+    "hanzi": "天",
+    "pinyin": "tian",
+    "stroke_count": 0,
+    "study_order": 1,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "地",
+    "pinyin": "di",
+    "stroke_count": 0,
+    "study_order": 2,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "人",
+    "pinyin": "ren",
+    "stroke_count": 0,
+    "study_order": 3,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "你",
+    "pinyin": "ni",
+    "stroke_count": 0,
+    "study_order": 4,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "我",
+    "pinyin": "wo",
+    "stroke_count": 0,
+    "study_order": 5,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "他",
+    "pinyin": "ta",
+    "stroke_count": 0,
+    "study_order": 6,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "一",
+    "pinyin": "yi",
+    "stroke_count": 0,
+    "study_order": 7,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "二",
+    "pinyin": "er",
+    "stroke_count": 0,
+    "study_order": 8,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "三",
+    "pinyin": "san",
+    "stroke_count": 0,
+    "study_order": 9,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "四",
+    "pinyin": "si",
+    "stroke_count": 0,
+    "study_order": 10,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "五",
+    "pinyin": "wu",
+    "stroke_count": 0,
+    "study_order": 11,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "上",
+    "pinyin": "shang",
+    "stroke_count": 0,
+    "study_order": 12,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "下",
+    "pinyin": "xia",
+    "stroke_count": 0,
+    "study_order": 13,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "口",
+    "pinyin": "kou",
+    "stroke_count": 0,
+    "study_order": 14,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "耳",
+    "pinyin": "er",
+    "stroke_count": 0,
+    "study_order": 15,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "目",
+    "pinyin": "mu",
+    "stroke_count": 0,
+    "study_order": 16,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "手",
+    "pinyin": "shou",
+    "stroke_count": 0,
+    "study_order": 17,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "足",
+    "pinyin": "zu",
+    "stroke_count": 0,
+    "study_order": 18,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "站",
+    "pinyin": "zhan",
+    "stroke_count": 0,
+    "study_order": 19,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "坐",
+    "pinyin": "zuo",
+    "stroke_count": 0,
+    "study_order": 20,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "日",
+    "pinyin": "ri",
+    "stroke_count": 0,
+    "study_order": 21,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "月",
+    "pinyin": "yue",
+    "stroke_count": 0,
+    "study_order": 22,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "水",
+    "pinyin": "shui",
+    "stroke_count": 0,
+    "study_order": 23,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "火",
+    "pinyin": "huo",
+    "stroke_count": 0,
+    "study_order": 24,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "山",
+    "pinyin": "shan",
+    "stroke_count": 0,
+    "study_order": 25,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "石",
+    "pinyin": "shi",
+    "stroke_count": 0,
+    "study_order": 26,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "田",
+    "pinyin": "tian",
+    "stroke_count": 0,
+    "study_order": 27,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "禾",
+    "pinyin": "he",
+    "stroke_count": 0,
+    "study_order": 28,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "对",
+    "pinyin": "dui",
+    "stroke_count": 0,
+    "study_order": 29,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "云",
+    "pinyin": "yun",
+    "stroke_count": 0,
+    "study_order": 30,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "雨",
+    "pinyin": "yu",
+    "stroke_count": 0,
+    "study_order": 31,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "风",
+    "pinyin": "feng",
+    "stroke_count": 0,
+    "study_order": 32,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "花",
+    "pinyin": "hua",
+    "stroke_count": 0,
+    "study_order": 33,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "鸟",
+    "pinyin": "niao",
+    "stroke_count": 0,
+    "study_order": 34,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "虫",
+    "pinyin": "chong",
+    "stroke_count": 0,
+    "study_order": 35,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "六",
+    "pinyin": "liu",
+    "stroke_count": 0,
+    "study_order": 36,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "七",
+    "pinyin": "qi",
+    "stroke_count": 0,
+    "study_order": 37,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "八",
+    "pinyin": "ba",
+    "stroke_count": 0,
+    "study_order": 38,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "九",
+    "pinyin": "jiu",
+    "stroke_count": 0,
+    "study_order": 39,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "十",
+    "pinyin": "shi",
+    "stroke_count": 0,
+    "study_order": 40,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "爸",
+    "pinyin": "ba",
+    "stroke_count": 0,
+    "study_order": 41,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "妈",
+    "pinyin": "ma",
+    "stroke_count": 0,
+    "study_order": 42,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "马",
+    "pinyin": "ma",
+    "stroke_count": 0,
+    "study_order": 43,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "土",
+    "pinyin": "tu",
+    "stroke_count": 0,
+    "study_order": 44,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "不",
+    "pinyin": "bu",
+    "stroke_count": 0,
+    "study_order": 45,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "画",
+    "pinyin": "hua",
+    "stroke_count": 0,
+    "study_order": 46,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "打",
+    "pinyin": "da",
+    "stroke_count": 0,
+    "study_order": 47,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "棋",
+    "pinyin": "qi",
+    "stroke_count": 0,
+    "study_order": 48,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "鸡",
+    "pinyin": "ji",
+    "stroke_count": 0,
+    "study_order": 49,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "字",
+    "pinyin": "zi",
+    "stroke_count": 0,
+    "study_order": 50,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "词",
+    "pinyin": "ci",
+    "stroke_count": 0,
+    "study_order": 51,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "语",
+    "pinyin": "yu",
+    "stroke_count": 0,
+    "study_order": 52,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "文",
+    "pinyin": "wen",
+    "stroke_count": 0,
+    "study_order": 53,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "数",
+    "pinyin": "shu",
+    "stroke_count": 0,
+    "study_order": 54,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "学",
+    "pinyin": "xue",
+    "stroke_count": 0,
+    "study_order": 55,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "音",
+    "pinyin": "yin",
+    "stroke_count": 0,
+    "study_order": 56,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "乐",
+    "pinyin": "yue",
+    "stroke_count": 0,
+    "study_order": 57,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "妹",
+    "pinyin": "mei",
+    "stroke_count": 0,
+    "study_order": 58,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "奶",
+    "pinyin": "nai",
+    "stroke_count": 0,
+    "study_order": 59,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "白",
+    "pinyin": "bai",
+    "stroke_count": 0,
+    "study_order": 60,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "皮",
+    "pinyin": "pi",
+    "stroke_count": 0,
+    "study_order": 61,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "小",
+    "pinyin": "xiao",
+    "stroke_count": 0,
+    "study_order": 62,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "桥",
+    "pinyin": "qiao",
+    "stroke_count": 0,
+    "study_order": 63,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "台",
+    "pinyin": "tai",
+    "stroke_count": 0,
+    "study_order": 64,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "雪",
+    "pinyin": "xue",
+    "stroke_count": 0,
+    "study_order": 65,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "儿",
+    "pinyin": "er",
+    "stroke_count": 0,
+    "study_order": 66,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "是",
+    "pinyin": "shi",
+    "stroke_count": 0,
+    "study_order": 67,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "灯",
+    "pinyin": "deng",
+    "stroke_count": 0,
+    "study_order": 68,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "走",
+    "pinyin": "zou",
+    "stroke_count": 0,
+    "study_order": 69,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "也",
+    "pinyin": "ye",
+    "stroke_count": 0,
+    "study_order": 70,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "球",
+    "pinyin": "qiu",
+    "stroke_count": 0,
+    "study_order": 71,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "拔",
+    "pinyin": "ba",
+    "stroke_count": 0,
+    "study_order": 72,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "拍",
+    "pinyin": "pai",
+    "stroke_count": 0,
+    "study_order": 73,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "跳",
+    "pinyin": "tiao",
+    "stroke_count": 0,
+    "study_order": 74,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "跑",
+    "pinyin": "pao",
+    "stroke_count": 0,
+    "study_order": 75,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "步",
+    "pinyin": "bu",
+    "stroke_count": 0,
+    "study_order": 76,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "声",
+    "pinyin": "sheng",
+    "stroke_count": 0,
+    "study_order": 77,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "身",
+    "pinyin": "shen",
+    "stroke_count": 0,
+    "study_order": 78,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "色",
+    "pinyin": "se",
+    "stroke_count": 0,
+    "study_order": 79,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "金",
+    "pinyin": "jin",
+    "stroke_count": 0,
+    "study_order": 80,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "木",
+    "pinyin": "mu",
+    "stroke_count": 0,
+    "study_order": 81,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "竹",
+    "pinyin": "zhu",
+    "stroke_count": 0,
+    "study_order": 82,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "会",
+    "pinyin": "hui",
+    "stroke_count": 0,
+    "study_order": 83,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "独",
+    "pinyin": "du",
+    "stroke_count": 0,
+    "study_order": 84,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "立",
+    "pinyin": "li",
+    "stroke_count": 0,
+    "study_order": 85,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "们",
+    "pinyin": "men",
+    "stroke_count": 0,
+    "study_order": 86,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "个",
+    "pinyin": "ge",
+    "stroke_count": 0,
+    "study_order": 87,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "头",
+    "pinyin": "tou",
+    "stroke_count": 0,
+    "study_order": 88,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "里",
+    "pinyin": "li",
+    "stroke_count": 0,
+    "study_order": 89,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "来",
+    "pinyin": "lai",
+    "stroke_count": 0,
+    "study_order": 90,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "去",
+    "pinyin": "qu",
+    "stroke_count": 0,
+    "study_order": 91,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "送",
+    "pinyin": "song",
+    "stroke_count": 0,
+    "study_order": 92,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "门",
+    "pinyin": "men",
+    "stroke_count": 0,
+    "study_order": 93,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "关",
+    "pinyin": "guan",
+    "stroke_count": 0,
+    "study_order": 94,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "进",
+    "pinyin": "jin",
+    "stroke_count": 0,
+    "study_order": 95,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "出",
+    "pinyin": "chu",
+    "stroke_count": 0,
+    "study_order": 96,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "果",
+    "pinyin": "guo",
+    "stroke_count": 0,
+    "study_order": 97,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "弯",
+    "pinyin": "wan",
+    "stroke_count": 0,
+    "study_order": 98,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "北",
+    "pinyin": "bei",
+    "stroke_count": 0,
+    "study_order": 99,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "京",
+    "pinyin": "jing",
+    "stroke_count": 0,
+    "study_order": 100,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "安",
+    "pinyin": "an",
+    "stroke_count": 0,
+    "study_order": 101,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "生",
+    "pinyin": "sheng",
+    "stroke_count": 0,
+    "study_order": 102,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "玩",
+    "pinyin": "wan",
+    "stroke_count": 0,
+    "study_order": 103,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "现",
+    "pinyin": "xian",
+    "stroke_count": 0,
+    "study_order": 104,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "在",
+    "pinyin": "zai",
+    "stroke_count": 0,
+    "study_order": 105,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "有",
+    "pinyin": "you",
+    "stroke_count": 0,
+    "study_order": 106,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "用",
+    "pinyin": "yong",
+    "stroke_count": 0,
+    "study_order": 107,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "变",
+    "pinyin": "bian",
+    "stroke_count": 0,
+    "study_order": 108,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "只",
+    "pinyin": "zhi",
+    "stroke_count": 0,
+    "study_order": 109,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "歌",
+    "pinyin": "ge",
+    "stroke_count": 0,
+    "study_order": 110,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "唱",
+    "pinyin": "chang",
+    "stroke_count": 0,
+    "study_order": 111,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "波",
+    "pinyin": "bo",
+    "stroke_count": 0,
+    "study_order": 112,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "浪",
+    "pinyin": "lang",
+    "stroke_count": 0,
+    "study_order": 113,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "大",
+    "pinyin": "da",
+    "stroke_count": 0,
+    "study_order": 114,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "气",
+    "pinyin": "qi",
+    "stroke_count": 0,
+    "study_order": 115,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "朵",
+    "pinyin": "duo",
+    "stroke_count": 0,
+    "study_order": 116,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "说",
+    "pinyin": "shuo",
+    "stroke_count": 0,
+    "study_order": 117,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "话",
+    "pinyin": "hua",
+    "stroke_count": 0,
+    "study_order": 118,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "爱",
+    "pinyin": "ai",
+    "stroke_count": 0,
+    "study_order": 119,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "苗",
+    "pinyin": "miao",
+    "stroke_count": 0,
+    "study_order": 120,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  },
+  {
+    "hanzi": "了",
+    "pinyin": "le",
+    "stroke_count": 0,
+    "study_order": 121,
+    "grade_level": "g1",
+    "source": "demo",
+    "content_pack": "grade1"
+  }
+]

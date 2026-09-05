@@ -1,0 +1,194 @@
+[
+  {
+    "text": "妈妈",
+    "type": "word"
+  },
+  {
+    "text": "爸爸",
+    "type": "word"
+  },
+  {
+    "text": "小鸟",
+    "type": "word"
+  },
+  {
+    "text": "山水",
+    "type": "word"
+  },
+  {
+    "text": "火山",
+    "type": "word"
+  },
+  {
+    "text": "白云",
+    "type": "word"
+  },
+  {
+    "text": "天气",
+    "type": "word"
+  },
+  {
+    "text": "大地",
+    "type": "word"
+  },
+  {
+    "text": "我们",
+    "type": "word"
+  },
+  {
+    "text": "你们",
+    "type": "word"
+  },
+  {
+    "text": "他们",
+    "type": "word"
+  },
+  {
+    "text": "花朵",
+    "type": "word"
+  },
+  {
+    "text": "石头",
+    "type": "word"
+  },
+  {
+    "text": "小桥",
+    "type": "word"
+  },
+  {
+    "text": "门口",
+    "type": "word"
+  },
+  {
+    "text": "上来",
+    "type": "word"
+  },
+  {
+    "text": "下去",
+    "type": "word"
+  },
+  {
+    "text": "日月",
+    "type": "word"
+  },
+  {
+    "text": "耳朵",
+    "type": "word"
+  },
+  {
+    "text": "小手",
+    "type": "word"
+  },
+  {
+    "text": "唱歌",
+    "type": "word"
+  },
+  {
+    "text": "北京",
+    "type": "word"
+  },
+  {
+    "text": "生日",
+    "type": "word"
+  },
+  {
+    "text": "水花",
+    "type": "word"
+  },
+  {
+    "text": "大门",
+    "type": "word"
+  },
+  {
+    "text": "小人",
+    "type": "word"
+  },
+  {
+    "text": "山上",
+    "type": "word"
+  },
+  {
+    "text": "火苗",
+    "type": "word"
+  },
+  {
+    "text": "学说话",
+    "type": "phrase"
+  },
+  {
+    "text": "大山上",
+    "type": "phrase"
+  },
+  {
+    "text": "白云上",
+    "type": "phrase"
+  },
+  {
+    "text": "山上有花",
+    "type": "phrase"
+  },
+  {
+    "text": "我们上学",
+    "type": "phrase"
+  },
+  {
+    "text": "天上有云",
+    "type": "phrase"
+  },
+  {
+    "text": "门关了",
+    "type": "phrase"
+  },
+  {
+    "text": "我来了",
+    "type": "phrase"
+  },
+  {
+    "text": "小鸟在唱歌",
+    "type": "phrase"
+  },
+  {
+    "text": "一二三",
+    "type": "phrase"
+  },
+  {
+    "text": "我爱妈妈",
+    "type": "sentence"
+  },
+  {
+    "text": "妈妈爱我",
+    "type": "sentence"
+  },
+  {
+    "text": "我们上学去",
+    "type": "sentence"
+  },
+  {
+    "text": "小鸟在唱歌",
+    "type": "sentence"
+  },
+  {
+    "text": "天上有白云",
+    "type": "sentence"
+  },
+  {
+    "text": "门关了",
+    "type": "sentence"
+  },
+  {
+    "text": "山上有花",
+    "type": "sentence"
+  },
+  {
+    "text": "北京有大学",
+    "type": "sentence"
+  },
+  {
+    "text": "我走上来",
+    "type": "sentence"
+  },
+  {
+    "text": "我们去山上",
+    "type": "sentence"
+  }
+]

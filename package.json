@@ -1,0 +1,57 @@
+{
+  "name": "123-recognize",
+  "version": "0.1.0",
+  "description": "123认字——在阅读中认字、遵循遗忘规律的儿童识字游戏",
+  "main": "src/main/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "vite",
+    "build:renderer": "vite build",
+    "start": "electron .",
+    "test": "node --test tests/core.test.js tests/content.test.js tests/engine.test.js tests/levels.test.js tests/scheduler.test.js",
+    "dist": "npm run build:renderer && electron-builder",
+    "test:sqlite": "electron scripts/test-sqlite.js",
+    "smoke": "electron scripts/smoke.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "vue": "^3.5.10",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.7.2",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "electron": "^40.10.1",
+    "electron-builder": "^24.13.3",
+    "vite": "^5.4.8"
+  },
+  "build": {
+    "appId": "com.123recognize.app",
+    "productName": "123认字",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "dist/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["arm64"] }
+      ],
+      "category": "public.app-category.education"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
+    }
+  }
+}
