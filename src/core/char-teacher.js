@@ -512,7 +512,9 @@ function getUsage(hanzi, sentence, pos, meaning) {
 
   // 儿童句子库句子：通用解读（句子本身简单，直接说明句意）
   // 不强行替换字义，避免出现"我是小学习，效法生"这种不通顺的情况
-  return `「${sentence}」描述的是：${sentence}。`;
+  // 去掉末尾句号避免双句号
+  const cleanSentence = sentence.replace(/[。.!！?？]+$/, '');
+  return `「${cleanSentence}」描述的是：${cleanSentence}。`;
 }
 
 /**
