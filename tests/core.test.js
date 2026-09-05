@@ -131,3 +131,30 @@ test('字库包完整性：词句所有字都在字表内', () => {
     for (const h of e.chars) assert.ok(hanzi.has(h), `词句 ${e.text} 含未收录字 ${h}`);
   }
 });
+
+test('字库小也能学完全部字（修复：band 提升后不再取空导致“词库只有20字”）', () => {
+  const { core, u, pack } = setup();
+  const seen = new Set();
+  let guard = 0;
+  while (true) {
+    const s = core.getSession(u.user_id);
+    if (!s.newItems || s.newItems.length === 0) break;
+    const ids = [];
+    s.newItems.forEach((item) => item.chars.forEach((c) => { if (c.char_id) ids.push(c.char_id); }));
+    ids.forEach((id) => seen.add(id));
+    core.submitSession(u.user_id, ids.map((id) => ({ charId: id, known: true })));
+    guard += 1;
+    assert.ok(guard < 200, '循环未收敛（可能死循环）');
+  }
+  assert.equal(seen.size, pack.chars.length, `全部 ${pack.chars.length} 个字都应能学到`);
+});
+
+test('持续评估按批跳级：一批 5 新字全对不瞬间跳级', () => {
+  const { core, u } = setup();
+  const s = core.getSession(u.user_id);
+  const ids = [];
+  s.newItems.forEach((item) => item.chars.forEach((c) => { if (c.char_id) ids.push(c.char_id); }));
+  const r = core.submitSession(u.user_id, ids.map((id) => ({ charId: id, known: true })));
+  assert.equal(r.events.filter((e) => e.type === 'jump').length, 0, '一批全对不应立即跳级');
+  assert.equal(core.getLevel(u.user_id).band, 0);
+});

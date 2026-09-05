@@ -33,7 +33,7 @@ npm run dist        # electron-builder 打包（macOS dmg + Windows NSIS 配置�
 
 | 项 | 命令 | 结果 |
 | --- | --- | --- |
-| 单元测试（四仓库升降级/持续评估跳级降级/载体演进/组词约束/年级映射/多用户隔离/设置） | `npm test` | **34/34 通过** |
+| 单元测试（四仓库升降级/持续评估跳级降级/载体演进/组词约束/年级映射/多用户隔离/设置） | `npm test` | **38/38 通过** |
 | Electron 冒烟（IPC 全链路 + Vue 挂载） | `npm run smoke` | **PASS** |
 | SQLite 验证（内存库流程 + 文件持久化重启 + 间隔配置持久化） | `npm run test:sqlite` | **PASS（8/8）** |
 | electron-builder 打包（mac app 目录） | `npx electron-builder --dir --mac` | 成功，产物可启动 |
@@ -107,3 +107,4 @@ macOS 26 的 Gatekeeper/XProtect 会把「未公证 + 网络下载」的 Electro
 4. Electron 31 二进制被 macOS XProtect 清除 + 运行时 SIGKILL → 升级 Electron 40 并 ad-hoc 重签。
 5. better-sqlite3 11 与 Electron 40 的 V8 API 不兼容 → 升级 13.0.3 并 `electron-rebuild`。
 6. 打包链路：electron-builder 配置完成，`--dir --mac` 产物验证可启动。
+7. **修复「词库只有 20 个字」**：①评估改为按批结算（新增 `recordBatch`，一批内全对才计 1 次连续全对，避免 5 个新字全对就瞬间跳级）；②新字选择在 band 区间无字时回退全局未学字（字库未铺满时也能学完全部字）；③组词不再用纯已掌握字凑词，保证每个新字都能进入学习流程。回归测试 +4，`34→38`。

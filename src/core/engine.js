@@ -70,6 +70,54 @@ function recordAnswer(storage, userId, known, now = Date.now()) {
   return { level: { ...lv, recent: undefined }, events };
 }
 
+/**
+ * 按“批”评估（策划案：连续 5 次全对跳级，以作答批次为单位）。
+ * 一批内所有作答全对才计 1 次连续全对；有任何答错则计 1 次连续答错。
+ * 避免一批 5 个新字全对就瞬间跳级（旧版逐字计数的缺陷）。
+ */
+function recordBatch(storage, userId, results, now = Date.now()) {
+  const lv = ensureLevel(storage, userId, now);
+  const arr = Array.isArray(results) ? results : [results];
+  const answers = arr.filter((r) => r != null).map((r) => (typeof r === 'object' ? !!r.known : !!r));
+
+  if (answers.length > 0) {
+    const allCorrect = answers.every(Boolean);
+    if (allCorrect) {
+      lv.streak_full += 1;
+      lv.streak_wrong = 0;
+    } else {
+      lv.streak_wrong += 1;
+      lv.streak_full = 0;
+    }
+  }
+  for (const k of answers) {
+    lv.recent.push(k ? 1 : 0);
+    if (lv.recent.length > WINDOW) lv.recent.shift();
+  }
+  const correct = lv.recent.filter(Boolean).length;
+  lv.recent_accuracy = lv.recent.length ? correct / lv.recent.length : 1;
+
+  lv.skill_level = skillLevelFromStore(storage, userId);
+  const lp = levelWithPercentile(lv.skill_level);
+  lv.grade_est = lp.grade;
+  lv.percentile = lp.percentile;
+
+  const events = [];
+  if (lv.streak_full >= JUMP_STREAK) {
+    events.push({ type: 'jump', band: lv.band });
+    lv.band = Math.min(BANDS - 1, lv.band + 1);
+    lv.streak_full = 0;
+  }
+  if (lv.streak_wrong >= DEMOTE_STREAK) {
+    events.push({ type: 'demote', band: lv.band });
+    lv.band = Math.max(0, lv.band - 1);
+    lv.streak_wrong = 0;
+  }
+  lv.updated_at = new Date(now).toISOString();
+  storage.setLevel(userId, lv);
+  return { level: { ...lv, recent: undefined }, events };
+}
+
 /** 当前 band 对应的 study_order 区间（1 起） */
 function bandRange(band) {
   const b = Math.max(0, Math.min(BANDS - 1, band));
@@ -99,6 +147,7 @@ module.exports = {
   BANDS,
   ensureLevel,
   recordAnswer,
+  recordBatch,
   bandRange,
   getLevelView,
 };

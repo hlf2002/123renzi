@@ -37,40 +37,34 @@ function createAppCore(storage, pack) {
   const knownHanziSet = (userId) =>
     new Set(storage.allProgress(userId).filter((p) => p.warehouse === 4).map((p) => storage.getChar(p.char_id).hanzi));
 
-  /** 选择待学新字：从当前 band 区间按 study_order 取未学的字，不够则向后扩展 */
+  /** 选择待学新字：优先当前 band 区间；字库未铺满该区间时回退全局未学字，保证永远有字可学 */
   function pickNewChars(userId, now = Date.now()) {
     const lv = engine.ensureLevel(storage, userId, now);
     const learned = learnedIds(userId);
-    let band = lv.band;
-    let pool = storage
+    const unlearned = storage
       .allChars()
-      .filter((c) => {
-        const [lo, hi] = engine.bandRange(band);
-        return c.study_order >= lo && c.study_order <= hi && !learned.has(c.char_id);
-      })
+      .filter((c) => !learned.has(c.char_id))
       .sort((a, b) => a.study_order - b.study_order);
-    while (pool.length < SESSION_NEW && band < engine.BANDS - 1) {
-      band += 1;
-      const [lo2, hi2] = engine.bandRange(band);
-      const more = storage
-        .allChars()
-        .filter((c) => c.study_order >= lo2 && c.study_order <= hi2 && !learned.has(c.char_id))
-        .sort((a, b) => a.study_order - b.study_order);
-      pool = pool.concat(more);
-    }
+    if (unlearned.length === 0) return [];
+    const [lo, hi] = engine.bandRange(lv.band);
+    const inBand = unlearned.filter((c) => c.study_order >= lo && c.study_order <= hi);
+    const pool = inBand.length > 0 ? inBand : unlearned;
     return pool.slice(0, SESSION_NEW);
   }
 
-  /** 探测字：略高于当前 band 的字（评估无感化） */
+  /** 探测字：略高于当前 band 的未学字；字库不足时回退到全局最难的未学字 */
   function pickProbe(userId, now = Date.now()) {
     const lv = engine.ensureLevel(storage, userId, now);
     const learned = learnedIds(userId);
-    const lo = Math.min(engine.BANDS - 1, lv.band + 1) * 300 + 1;
-    const cand = storage
+    const unlearned = storage
       .allChars()
-      .filter((c) => c.study_order >= lo && !learned.has(c.char_id))
+      .filter((c) => !learned.has(c.char_id))
       .sort((a, b) => a.study_order - b.study_order);
-    return cand[0] || null;
+    if (unlearned.length === 0) return null;
+    const lo = Math.min(engine.BANDS - 1, lv.band + 1) * 300 + 1;
+    const higher = unlearned.filter((c) => c.study_order >= lo);
+    const pick = higher.length > 0 ? higher[0] : unlearned[unlearned.length - 1];
+    return pick;
   }
 
   /** 把字 id 集合组词/组句；词句不足时退化为单字格 */
@@ -136,19 +130,14 @@ function createAppCore(storage, pack) {
         out.push({ charId: r.charId, from: 0, to: res.ok ? res.progress.warehouse : null });
       }
     }
-    // 持续评估：每次作答更新水平与事件
-    let events = [];
-    for (const r of results) {
-      if (!r || !r.charId) continue;
-      const e = engine.recordAnswer(storage, userId, !!r.known, now);
-      if (e.events.length) events = events.concat(e.events);
-    }
-    return { results: out, events, level: engine.getLevelView(storage, userId), counts: scheduler.warehouseCounts(storage, userId) };
+    // 持续评估：整批统一评估（一批全对才计一次连续全对，避免 5 个字就瞬间跳级）
+    const ev = engine.recordBatch(storage, userId, results, now);
+    return { results: out, events: ev.events, level: engine.getLevelView(storage, userId), counts: scheduler.warehouseCounts(storage, userId) };
   }
 
   /** 探测字作答（不改变进度，只影响评估） */
   function submitProbe(userId, known, now = Date.now()) {
-    const { level, events } = engine.recordAnswer(storage, userId, !!known, now);
+    const { level, events } = engine.recordBatch(storage, userId, [{ known: !!known }], now);
     return { level, events };
   }
 

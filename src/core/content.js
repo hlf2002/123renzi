@@ -67,9 +67,10 @@ function pickItems(pool, known, test, maxType, count, rng = Math.random) {
     if (TYPE_WEIGHT[e.type] > maxW) return false;
     return e.chars.every((h) => known.has(h) || test.has(h));
   });
+  // 只允许包含待测字的条目：否则新字永远进不了学习流程（会被纯已知字词条挤掉）
   const withTest = candidates.filter((e) => e.chars.some((h) => test.has(h)));
-  const base = withTest.length > 0 ? withTest : candidates;
-  return shuffle(base, rng).slice(0, count);
+  if (withTest.length === 0) return [];
+  return shuffle(withTest, rng).slice(0, count);
 }
 
 // 是否需要载体类型兜底：maxType 下无候选时逐级放宽

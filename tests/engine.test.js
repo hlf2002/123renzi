@@ -78,3 +78,31 @@ test('recordAnswer 更新 skill_level 与正确率窗口', () => {
   assert.equal(lv.recent.length, 3);
   assert.ok(Math.abs(lv.recent_accuracy - 2 / 3) < 1e-9);
 });
+
+test('recordBatch：一批内多个全对只计一次连续全对（不瞬间跳级）', () => {
+  const storage = createMemoryStorage();
+  const u = storage.createUser({ nickname: 'a' });
+  engine.ensureLevel(storage, u.user_id);
+  // 一批 5 个全对 → 只算 1 次连续全对，不触发跳级
+  const r1 = engine.recordBatch(storage, u.user_id, [
+    { known: true }, { known: true }, { known: true }, { known: true }, { known: true },
+  ]);
+  assert.equal(r1.events.filter((e) => e.type === 'jump').length, 0, '一批 5 个全对不应立即跳级');
+  assert.equal(storage.getLevel(u.user_id).band, 0);
+  // 再连续 4 批全对 → 累计 5 批触发跳级
+  for (let i = 0; i < 4; i++) engine.recordBatch(storage, u.user_id, [{ known: true }]);
+  assert.equal(storage.getLevel(u.user_id).band, 1, '连续 5 批全对触发跳级');
+});
+
+test('recordBatch：一批内有答错则重置连续全对计数', () => {
+  const storage = createMemoryStorage();
+  const u = storage.createUser({ nickname: 'a' });
+  engine.ensureLevel(storage, u.user_id);
+  for (let i = 0; i < 4; i++) engine.recordBatch(storage, u.user_id, [{ known: true }]);
+  // 第 5 批有 1 个答错 → 本批不算全对，连续计数重置
+  engine.recordBatch(storage, u.user_id, [{ known: true }, { known: false }]);
+  assert.equal(storage.getLevel(u.user_id).band, 0, '有答错的批次不触发跳级');
+  // 重置后再连续 5 批全对 → 跳级
+  for (let i = 0; i < 5; i++) engine.recordBatch(storage, u.user_id, [{ known: true }]);
+  assert.equal(storage.getLevel(u.user_id).band, 1);
+});
