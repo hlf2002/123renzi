@@ -2203,9 +2203,8 @@ async function teach(char, context = {}) {
   }
 
   // 语音朗读：组成一个完整的句子
-  // 格式：XX你好，这个字念X，组词1的X，组词2的X，组词3的X，造句。
-  const nickname = (context && context.nickname) || '小朋友';
-  let speakText = `${nickname}你好，这个字念${hanzi}`;
+  // 格式：这个字念X，组词1的X，组词2的X，组词3的X，造句。
+  let speakText = `这个字念${hanzi}`;
   if (words.length > 0) {
     const wordParts = words.slice(0, 3).map(w => `${w.word}的${hanzi}`);
     speakText += '，' + wordParts.join('，');
