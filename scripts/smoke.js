@@ -18,7 +18,7 @@ const ROOT = path.join(__dirname, '..');
 
 app.whenReady().then(async () => {
   let ctx;
-  const dbPath = path.join(os.tmpdir(), `123-recognize-smoke-${process.pid}-${Date.now()}.db`);
+  const dbPath = path.join(os.tmpdir(), `123renzi-smoke-${process.pid}-${Date.now()}.db`);
   try {
     ctx = initApp(dbPath, path.join(ROOT, 'src', 'assets', 'content', 'grade1'));
   } catch (e) {

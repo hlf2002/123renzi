@@ -48,7 +48,7 @@ app.whenReady().then(() => {
 
   // ---- 2. 文件持久化重启 ----
   console.log('== 文件持久化 ==');
-  const dbPath = path.join(os.tmpdir(), `123-recognize-sqlite-${process.pid}-${Date.now()}.db`);
+  const dbPath = path.join(os.tmpdir(), `123renzi-sqlite-${process.pid}-${Date.now()}.db`);
   let ctx = initApp(dbPath, packDir);
   const u2 = ctx.core.createUser({ nickname: '持久化' });
   const ss = ctx.core.getSession(u2.user_id);

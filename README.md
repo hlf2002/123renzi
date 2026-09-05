@@ -6,7 +6,7 @@
 ## 一、快速开始
 
 ```bash
-cd 123-recognize
+cd 123renzi
 
 # 1. 安装依赖（Electron 二进制较大，见下方「macOS 安全拦截说明」）
 npm install
@@ -41,7 +41,7 @@ npm run dist        # electron-builder 打包（macOS dmg + Windows NSIS 配置�
 ## 三、目录结构
 
 ```
-123-recognize/
+123renzi/
 ├── src/
 │   ├── main/            # Electron 主进程
 │   │   ├── index.js     # 窗口创建 + 生命周期
