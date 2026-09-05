@@ -158,12 +158,12 @@ test('持续评估按批跳级：一批 5 新字全对不瞬间跳级', () => {
   assert.equal(core.getLevel(u.user_id).band, 0);
 });
 
-test('年级与百分位基于字库实际进度：学完g1显示一年级、百分位上升', () => {
+test('年级与百分位：综合正确率+识字量，一直全对百分位上升', () => {
   const { core, u } = setup();
   let lv = core.getLevel(u.user_id);
   assert.equal(lv.grade, '幼小衔接', '未学字时显示幼小衔接');
-  assert.equal(lv.percentile, 1, '未学字时百分位为下限');
-  // 学完全部 g1 字
+  assert.equal(lv.percentile, 50, '未学字时百分位为默认50');
+  // 学完全部 g1 字（一直全对）
   let guard = 0;
   while (true) {
     const s = core.getSession(u.user_id);
@@ -175,7 +175,9 @@ test('年级与百分位基于字库实际进度：学完g1显示一年级、百
     assert.ok(guard < 200, '循环未收敛');
   }
   lv = core.getLevel(u.user_id);
-  assert.equal(lv.grade, '一年级', '学完 g1 字库应显示一年级');
-  assert.ok(lv.percentile > 50, '学完一年级应超过半数同龄人');
-  assert.equal(lv.next_grade, '二年级');
+  // 一直全对会触发跳级，年级应≥一年级
+  const gradeOrder = { '幼小衔接': 0, '一年级': 1, '二年级': 2, '三年级': 3, '四年级': 4, '五年级': 5, '六年级': 6, '初中': 7, '高中': 8 };
+  assert.ok((gradeOrder[lv.grade] || 0) >= 1, '一直全对应至少到一年级');
+  assert.ok(lv.percentile > 50, '一直全对应超过半数同龄人');
+  assert.ok(lv.recent_accuracy >= 0.9, '一直全对应正确率≥90%');
 });

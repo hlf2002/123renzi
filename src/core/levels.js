@@ -89,9 +89,7 @@ function nextGradeOf(gl) {
 }
 
 /**
- * 基于「当前年级字库学习进度」的同龄人百分位。
- * 修复旧版按全量3500字硬编码导致首版121字永远显示幼小衔接/1%的问题。
- * 同龄人基准：该年级字库平均学完 60%，sigma=12%。
+ * 基于「当前年级字库学习进度」的同龄人百分位（保留兼容）。
  */
 function percentileFromProgress(learned, total) {
   if (!Number.isFinite(total) || total <= 0) return 1;
@@ -101,8 +99,42 @@ function percentileFromProgress(learned, total) {
   return clamp(pct, 1, 99);
 }
 
+/**
+ * 正确率 → 百分位映射。
+ * 一直全对的孩子超过大部分同龄人；正确率越低百分位越低。
+ */
+function accuracyToPercentile(acc) {
+  if (acc >= 0.98) return 92;
+  if (acc >= 0.90) return 82;
+  if (acc >= 0.80) return 70;
+  if (acc >= 0.70) return 58;
+  if (acc >= 0.60) return 45;
+  if (acc >= 0.50) return 32;
+  if (acc >= 0.35) return 20;
+  return 10;
+}
+
+/**
+ * 综合同龄人百分位：正确率(65%) + 识字量(35%)。
+ * 修复旧版只看「当前年级学习进度」导致跳级后一直显示1%的问题。
+ * @param {number} accuracy 最近正确率 0-1
+ * @param {number} skillLevel 已学字数（W4）
+ * @param {number} recentCount 最近答题数（<5题时给默认值50）
+ */
+function percentileFromAccuracyAndSkill(accuracy, skillLevel, recentCount) {
+  if (!recentCount || recentCount < 5) return 50;
+  const accPct = accuracyToPercentile(accuracy);
+  // 识字量百分位：同龄人平均认识800字，sigma=400
+  const mu = 800;
+  const sigma = 400;
+  const skillPct = Math.round(normalCdf((skillLevel - mu) / sigma) * 100);
+  const combined = accPct * 0.65 + skillPct * 0.35;
+  return clamp(Math.round(combined), 1, 99);
+}
+
 module.exports = {
   GRADE_BASE, GRADE_LEVEL_MAP,
   gradeOf, levelWithPercentile, normalCdf,
-  gradeFromCharGrade, gradeOrder, nextGradeOf, percentileFromProgress,
+  gradeFromCharGrade, gradeOrder, nextGradeOf,
+  percentileFromProgress, accuracyToPercentile, percentileFromAccuracyAndSkill,
 };

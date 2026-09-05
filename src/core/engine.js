@@ -13,6 +13,7 @@ const {
   gradeOrder,
   nextGradeOf,
   percentileFromProgress,
+  percentileFromAccuracyAndSkill,
 } = require('./levels');
 
 const WINDOW = 20;         // 正确率滑动窗口（最近20题）
@@ -72,13 +73,14 @@ function recordBatch(storage, userId, results, now = Date.now()) {
     lv.recent.push(k ? 1 : 0);
     if (lv.recent.length > WINDOW) lv.recent.shift();
   }
+  lv.assessed_chars = (lv.assessed_chars || 0) + answers.length; // 累计答题数
   const correct = lv.recent.filter(Boolean).length;
   lv.recent_accuracy = lv.recent.length ? correct / lv.recent.length : 1;
 
   lv.skill_level = skillLevelFromStore(storage, userId);
   const lp = levelWithPercentile(lv.skill_level);
   lv.grade_est = lp.grade;
-  lv.percentile = lp.percentile;
+  lv.percentile = percentileFromAccuracyAndSkill(lv.recent_accuracy, lv.skill_level, lv.assessed_chars);
 
   // 基于正确率的跳级/降级（不用学完当前年级）
   const events = [];
@@ -132,9 +134,8 @@ function getLevelView(storage, userId, now = Date.now()) {
 
   const currentGL = maxGL || 'g1';
   const grade = maxGL ? gradeFromCharGrade(maxGL) : '幼小衔接';
-  const learned = learnedByGrade[currentGL] || 0;
-  const total = totalByGrade[currentGL] || 1;
-  const percentile = percentileFromProgress(learned, total);
+  // 综合百分位：正确率(65%) + 识字量(35%)，不再只看当前年级进度
+  const percentile = percentileFromAccuracyAndSkill(lv.recent_accuracy, lv.skill_level, lv.assessed_chars);
 
   return {
     skill_level: lv.skill_level,
