@@ -38,7 +38,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   const dbPath = defaultDbPath(app.getPath('userData'));
-  const packDir = path.join(__dirname, '..', 'assets', 'content', 'grade1');
+  const packDir = path.join(__dirname, '..', 'assets', 'content', 'full');
   try {
     ctx = initApp(dbPath, packDir);
   } catch (e) {

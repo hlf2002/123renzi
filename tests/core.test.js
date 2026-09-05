@@ -66,18 +66,17 @@ test('第四仓库的字被发现不认识 → 回到第一仓库', () => {
   assert.equal(core.getProgress(u.user_id).rows.find((x) => x.char_id === first.char_id).warehouse, 1);
 });
 
-test('连续 5 次全对自动跳级（集成）', () => {
+test('持续评估：最近10题正确率≥85%自动跳级（集成，不用学完当前年级）', () => {
   const { core, u } = setup();
   const before = core.getLevel(u.user_id).band;
-  // 连续 5 次全对（用 session 里的字）
-  for (let round = 0; round < 5; round++) {
+  // 连续 10 轮各提交 1 个全对字 → 累计 10 题全对 → 跳级
+  for (let round = 0; round < 10; round++) {
     const s = core.getSession(u.user_id);
-    // 拿一个待测字全对；若没有则跳过
     const char = s.newItems[0] && s.newItems[0].chars[0];
     if (char && char.char_id) core.submitSession(u.user_id, [{ charId: char.char_id, known: true }]);
   }
   const after = core.getLevel(u.user_id).band;
-  assert.ok(after >= before + 1 || after >= 1, '触发跳级（band 至少 +1）');
+  assert.ok(after >= before + 1 || after >= 1, '最近10题全对应触发跳级（band 至少 +1）');
 });
 
 test('多用户隔离：不同用户进度互不影响', () => {
