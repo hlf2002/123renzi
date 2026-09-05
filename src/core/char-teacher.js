@@ -440,7 +440,7 @@ function makeTemplateSentence(hanzi) {
 }
 
 /**
- * 句子解读：结合词性和造句，用儿童能理解的语言解释这个字在句子中的含义。
+ * 句子解读：解释整句话的意思，用儿童能理解的语言。
  * @param {string} hanzi
  * @param {string} sentence
  * @param {string} [pos] 词性
@@ -448,47 +448,37 @@ function makeTemplateSentence(hanzi) {
  * @returns {string}
  */
 function getUsage(hanzi, sentence, pos, meaning) {
-  const xinhua = loadXinhua();
-  const wordPOS = pos || (xinhua[hanzi] && xinhua[hanzi].pos) || '';
-  const wordMeaning = meaning || getMeaning(hanzi, '');
+  if (!sentence) return '';
 
-  // 词性的儿童友好解释
-  const posExplain = {
-    '名': '表示人、事物或地方的名字',
-    '动': '表示一个动作或行为',
-    '形': '形容事物的样子或性质',
-    '数': '表示数量',
-    '量': '表示事物的单位',
-    '代': '代替人或事物的名称',
-    '副': '修饰动作，表示程度、时间等',
-    '介': '引出时间、地点、对象等',
-    '连': '连接词语或句子',
-    '助': '帮助句子表达语气',
-    '叹': '表示感叹或应答',
-    '拟声': '模拟声音',
-  };
-
-  let usage = '';
-
-  // 先解释这个字在句子中的含义
-  if (sentence && sentence.includes(hanzi)) {
-    usage = `在「${sentence}」中，`;
-    if (wordMeaning && wordMeaning.length < 30) {
-      // 去掉字义中的「」，避免嵌套引号
-      const cleanMeaning = wordMeaning.replace(/[「」]/g, '');
-      usage += `「${hanzi}」的意思是「${cleanMeaning}」。`;
-    } else {
-      usage += `「${hanzi}」是一个${wordPOS[0] || '常用'}字。`;
-    }
-  } else if (wordPOS) {
-    // 没有造句时，只解释词性
-    usage = `「${hanzi}」是${wordPOS[0]}词，${posExplain[wordPOS[0]] || ''}。`;
-    if (wordMeaning && wordMeaning.length < 30) {
-      usage += `意思是「${wordMeaning}」。`;
-    }
+  // 模板句子的解读（根据模板类型准确生成）
+  if (sentence.startsWith('我知道')) {
+    const word = sentence.replace('我知道', '');
+    return `「${sentence}」是说我了解${word}是什么。`;
+  }
+  if (sentence.startsWith('我喜欢吃')) {
+    const word = sentence.replace('我喜欢吃', '');
+    return `「${sentence}」是说我觉得${word}很好吃。`;
+  }
+  if (sentence.endsWith('真可爱')) {
+    const word = sentence.replace('真可爱', '');
+    return `「${sentence}」是说${word}很讨人喜欢。`;
+  }
+  if (sentence.startsWith('这里很')) {
+    const word = sentence.replace('这里很', '');
+    return `「${sentence}」是说这个地方很${word}。`;
+  }
+  if (sentence.startsWith('我喜欢') && !sentence.startsWith('我喜欢吃')) {
+    const word = sentence.replace('我喜欢', '');
+    return `「${sentence}」是说我很喜欢${word}。`;
+  }
+  if (sentence.startsWith('我看到了')) {
+    const word = sentence.replace('我看到了', '');
+    return `「${sentence}」是说我看见了${word}。`;
   }
 
-  return usage;
+  // 儿童句子库句子：通用解读（句子本身简单，直接说明句意）
+  // 不强行替换字义，避免出现"我是小学习，效法生"这种不通顺的情况
+  return `「${sentence}」描述的是：${sentence}。`;
 }
 
 /**
