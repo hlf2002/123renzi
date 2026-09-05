@@ -43,7 +43,7 @@
 
         <!-- 学习卡阶段 -->
         <div v-else class="learn-area">
-          <LearnCard :key="learnIndex" :char="learnQueue[learnIndex]" :current-sentence="currentSentence" />
+          <LearnCard :key="learnIndex" :char="learnQueue[learnIndex]" :current-sentence="currentSentence" :nickname="userNickname" />
           <div class="learn-next">
             <button class="btn primary big" @click="learnNext">
               {{ learnIndex < learnQueue.length - 1 ? '下一个' : '继续学' }}
@@ -98,6 +98,7 @@ const submitting = ref(false);
 const level = ref(null);
 const counts = ref({ 1: 0, 2: 0, 3: 0, 4: 0 });
 const learnQueue = ref([]);
+const userNickname = ref('小朋友');
 const learnIndex = ref(0);
 const error = ref('');
 
@@ -128,7 +129,15 @@ async function loadBatch() {
   phase.value = 'loading';
   error.value = '';
   try {
-    const s = await api.session.get(userId);
+    // 并行获取用户昵称和会话
+    const [users, s] = await Promise.all([
+      api.users.list(),
+      api.session.get(userId),
+    ]);
+    const user = users.find(u => u.id === userId);
+    if (user && user.nickname) {
+      userNickname.value = user.nickname;
+    }
     level.value = s.level;
     counts.value = s.counts;
     // 既无新字也无复习字，才是真正的“今天学完了”（字库暂未导入更多 / 明日才有复习）

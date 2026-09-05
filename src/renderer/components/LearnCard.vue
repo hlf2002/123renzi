@@ -58,6 +58,7 @@ import { speak, speakTeaching, api } from '../store';
 const props = defineProps({
   char: { type: Object, required: true },
   currentSentence: { type: String, default: '' },
+  nickname: { type: String, default: '小朋友' },
 });
 
 const bg = '#fff3d6';
@@ -75,7 +76,7 @@ async function loadTeaching() {
     if (api && api.teacher && api.teacher.teach) {
       const result = await api.teacher.teach(
         { hanzi: props.char.hanzi, pinyin: props.char.pinyin },
-        { currentSentence: props.currentSentence }
+        { currentSentence: props.currentSentence, nickname: props.nickname }
       );
       teaching.value = result || {};
     } else {
