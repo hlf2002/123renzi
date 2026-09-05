@@ -124,15 +124,15 @@ function sayAll() {
   }
 }
 
-onMounted(() => {
-  loadTeaching();
-  // 延迟自动朗读完整教学内容
-  setTimeout(() => sayAll(), 500);
+onMounted(async () => {
+  await loadTeaching();
+  // 教学内容加载完成后自动朗读
+  sayAll();
 });
 
-watch(() => props.char.hanzi, () => {
-  loadTeaching();
-  setTimeout(() => sayAll(), 500);
+watch(() => props.char.hanzi, async () => {
+  await loadTeaching();
+  sayAll();
 });
 </script>
 
