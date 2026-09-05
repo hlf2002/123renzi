@@ -47,6 +47,17 @@ function registerIpc(ctx) {
   // ---- 汉字教学（读字/组词/解释/造句/用法）----
   const charTeacher = require('../core/char-teacher');
   ipcMain.handle('teacher:teach', (_e, char, context) => charTeacher.teach(char || {}, context || {}));
+
+  // ---- Piper TTS 语音合成 ----
+  const tts = require('./tts');
+  ipcMain.handle('tts:synthesize', async (_e, text, opts) => {
+    const filePath = await tts.synthesize(text, opts || {});
+    return { filePath };
+  });
+  ipcMain.handle('tts:cleanup', (_e, filePath) => {
+    tts.cleanup(filePath);
+    return { ok: true };
+  });
 }
 
 module.exports = { registerIpc };

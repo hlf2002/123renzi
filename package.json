@@ -38,6 +38,13 @@
       "package.json"
     ],
     "asar": true,
+    "extraResources": [
+      {
+        "from": "tts",
+        "to": "tts",
+        "filter": ["**/*.onnx", "**/*.onnx.json"]
+      }
+    ],
     "mac": {
       "icon": "build/icon.icns",
       "target": [

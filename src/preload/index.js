@@ -32,4 +32,8 @@ contextBridge.exposeInMainWorld('api', {
   teacher: {
     teach: (char, context) => ipcRenderer.invoke('teacher:teach', char, context),
   },
+  tts: {
+    synthesize: (text, opts) => ipcRenderer.invoke('tts:synthesize', text, opts),
+    cleanup: (filePath) => ipcRenderer.invoke('tts:cleanup', filePath),
+  },
 });
