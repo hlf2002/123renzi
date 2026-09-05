@@ -136,18 +136,11 @@ function speakWithWebSpeech(text, opts = {}) {
 // ===== 对外接口 =====
 
 /**
- * 朗读文本（优先 Piper TTS，失败回退到系统语音）
+ * 朗读文本（使用系统 Web Speech API 中文女声）
  */
 export function speak(text, opts = {}) {
   if (!text || !text.trim()) return;
-  // 先尝试 Piper TTS
-  checkTTS().then(available => {
-    if (available) {
-      playWithPiper(text, opts);
-    } else {
-      speakWithWebSpeech(text, opts);
-    }
-  });
+  speakWithWebSpeech(text, opts);
 }
 
 /**
@@ -156,7 +149,7 @@ export function speak(text, opts = {}) {
 export function speakTeaching(parts) {
   const text = parts.filter(Boolean).join('。');
   if (!text) return;
-  speak(text, { speed: 0.85 });
+  speak(text, { rate: 0.85 });
 }
 
 /**
