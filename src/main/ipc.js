@@ -48,11 +48,11 @@ function registerIpc(ctx) {
   const charTeacher = require('../core/char-teacher');
   ipcMain.handle('teacher:teach', (_e, char, context) => charTeacher.teach(char || {}, context || {}));
 
-  // ---- Piper TTS 语音合成 ----
+  // ---- TTS 语音合成（优先 Edge TTS 晓晓，失败回退 Piper）----
   const tts = require('./tts');
   ipcMain.handle('tts:synthesize', async (_e, text, opts) => {
-    const filePath = await tts.synthesize(text, opts || {});
-    return { filePath };
+    const result = await tts.synthesize(text, opts || {});
+    return result; // { filePath, engine }
   });
   ipcMain.handle('tts:cleanup', (_e, filePath) => {
     tts.cleanup(filePath);
