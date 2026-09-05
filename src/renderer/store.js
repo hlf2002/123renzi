@@ -72,20 +72,21 @@ export function speak(text, opts = {}) {
   }
 }
 
-// 朗读一段教学内容（逐句朗读，带停顿）
+// 朗读一段教学内容（拼接成一段文本朗读，避免多utterance排队问题）
 export function speakTeaching(parts) {
   try {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     if (!voicesLoaded) loadVoices();
+    // 拼接成一段文本，用逗号分隔各部分
+    const text = parts.filter(Boolean).join('，');
+    if (!text) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN';
+    u.rate = 0.7;
+    u.pitch = 1.1;
+    if (femaleVoice) u.voice = femaleVoice;
     window.speechSynthesis.cancel();
-    parts.forEach((part, i) => {
-      const u = new SpeechSynthesisUtterance(part);
-      u.lang = 'zh-CN';
-      u.rate = 0.7;
-      u.pitch = 1.1;
-      if (femaleVoice) u.voice = femaleVoice;
-      window.speechSynthesis.speak(u);
-    });
+    window.speechSynthesis.speak(u);
   } catch (e) {
     /* 忽略 */
   }
