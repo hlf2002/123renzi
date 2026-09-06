@@ -1,8 +1,8 @@
 <template>
   <div class="learn-card" :style="{ background: bg }">
-    <!-- 汉字 + 拼音 -->
-    <div class="lc-char" @click="sayChar">{{ teaching.hanzi || char.hanzi }}</div>
+    <!-- 拼音 + 汉字 -->
     <div class="lc-pinyin">{{ teaching.pinyin || char.pinyin || '·' }}</div>
+    <div class="lc-char" @click="sayChar">{{ teaching.hanzi || char.hanzi }}</div>
 
     <!-- 加载中 -->
     <div v-if="loading" class="lc-loading">正在准备教学内容...</div>

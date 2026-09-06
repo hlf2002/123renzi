@@ -96,8 +96,8 @@
           <div v-if="warehouseChars.length === 0" class="empty-tip">这个仓库还没有字哦～</div>
           <div v-else class="char-grid">
             <div v-for="(c, i) in warehouseChars" :key="i" class="char-card" @click="learnCharFromWarehouse(c)">
-              <div class="cc-hanzi">{{ c.hanzi }}</div>
               <div class="cc-pinyin">{{ c.pinyin }}</div>
+              <div class="cc-hanzi">{{ c.hanzi }}</div>
             </div>
           </div>
         </div>
