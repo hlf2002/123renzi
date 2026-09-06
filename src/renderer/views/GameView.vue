@@ -99,7 +99,7 @@
           <div v-else class="char-grid">
             <div v-for="(c, i) in warehouseChars" :key="i" class="char-card">
               <div class="cc-hanzi">{{ c.hanzi }}</div>
-              <div class="cc-pinyin">{{ c.pinyin || '—' }}</div>
+              <div class="cc-pinyin">{{ c.pinyin }}</div>
             </div>
           </div>
         </div>
