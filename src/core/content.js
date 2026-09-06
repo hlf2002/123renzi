@@ -95,16 +95,12 @@ function pickItemsWithFallback(pool, known, test, maxType, count, rng) {
   let idx = order.indexOf(maxType);
   if (idx < 0) idx = 0;
 
-  // 1. 优先在当前载体级别找：先严格模式，再宽松模式（允许最多8个超纲字）
-  for (const extra of [0, 8]) {
-    const items = pickItems(pool, known, test, order[idx], count, rng, extra, order[idx]);
-    if (items.length > 0) return { items, actualType: order[idx], loose: extra > 0 };
-  }
-
-  // 2. 当前载体级别都找不到，逐级放宽到更低类型
-  for (let i = idx - 1; i >= 0; i--) {
-    const items = pickItems(pool, known, test, order[i], count, rng, 0, order[i]);
-    if (items.length > 0) return { items, actualType: order[i], loose: false };
+  // 从最高级别到最低级别，每个级别都先严格再宽松（允许最多8个超纲字）
+  for (let i = idx; i >= 0; i--) {
+    for (const extra of [0, 8]) {
+      const items = pickItems(pool, known, test, order[i], count, rng, extra, order[i]);
+      if (items.length > 0) return { items, actualType: order[i], loose: extra > 0 };
+    }
   }
   return { items: [], actualType: null, loose: false };
 }
