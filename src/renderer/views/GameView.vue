@@ -642,7 +642,7 @@ onMounted(loadBatch);
   cursor: pointer;
   transition: all 0.12s;
 }
-.char-cell:hover { border-color: #52c41a; background: #f6ffed; transform: scale(1.12); box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3); }
+.char-cell:hover { border-color: #ffb347; transform: scale(1.04); }
 .char-cell.marked {
   border-color: #d94f2b;
   background: #ffe3d6;
