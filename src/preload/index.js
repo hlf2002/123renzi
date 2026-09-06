@@ -35,4 +35,10 @@ contextBridge.exposeInMainWorld('api', {
     synthesize: (text, opts) => ipcRenderer.invoke('tts:synthesize', text, opts),
     cleanup: (filePath) => ipcRenderer.invoke('tts:cleanup', filePath),
   },
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    close: () => ipcRenderer.invoke('window:close'),
+    isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  },
 });

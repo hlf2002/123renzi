@@ -55,6 +55,28 @@ function registerIpc(ctx) {
     tts.cleanup(filePath);
     return { ok: true };
   });
+
+  // ---- 窗口控制（无边框窗口用）----
+  const { BrowserWindow } = require('electron');
+  ipcMain.handle('window:minimize', (e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (win) win.minimize();
+  });
+  ipcMain.handle('window:maximize', (e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (win) {
+      if (win.isMaximized()) win.unmaximize();
+      else win.maximize();
+    }
+  });
+  ipcMain.handle('window:close', (e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (win) win.close();
+  });
+  ipcMain.handle('window:isMaximized', (e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    return win ? win.isMaximized() : false;
+  });
 }
 
 module.exports = { registerIpc };

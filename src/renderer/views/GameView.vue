@@ -474,7 +474,7 @@ onMounted(loadBatch);
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 22px 8px;
+  padding: 14px 22px 8px 130px;
 }
 .back {
   width: 44px; height: 44px;

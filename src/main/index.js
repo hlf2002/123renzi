@@ -19,6 +19,7 @@ function createWindow() {
     minHeight: 640,
     title: '123认字',
     backgroundColor: '#fff7ea',
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'index.js'),
       contextIsolation: true,

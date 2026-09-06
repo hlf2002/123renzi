@@ -138,7 +138,7 @@ onMounted(async () => {
 .parent { min-height: 100%; background: #f7f3ec; }
 .p-top {
   display: flex; align-items: center; gap: 14px;
-  padding: 18px 24px;
+  padding: 14px 24px 14px 130px;
   background: #fff;
   border-bottom: 1px solid #eee;
   position: sticky; top: 0; z-index: 2;
