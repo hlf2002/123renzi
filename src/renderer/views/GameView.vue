@@ -293,6 +293,11 @@ function next() {
 }
 
 function learnNext() {
+  // 从仓库复习的字，学完后不播放飞入动画，直接完成
+  if (isWarehouseReview.value) {
+    doLearnNext();
+    return;
+  }
   // 播放字卡飞入仓库动画（学习完的字进W1）
   const char = learnQueue.value[learnIndex.value];
   const isLast = learnIndex.value >= learnQueue.value.length - 1;
