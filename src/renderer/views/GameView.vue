@@ -46,7 +46,7 @@
           <LearnCard :key="learnIndex" :char="learnQueue[learnIndex]" :current-sentence="currentSentence" :nickname="userNickname" />
           <div class="learn-next">
             <button class="btn primary big" @click="learnNext">
-              {{ learnIndex < learnQueue.length - 1 ? '下一个' : '继续学' }}
+              {{ isWarehouseReview ? '完成' : (learnIndex < learnQueue.length - 1 ? '下一个' : '继续学') }}
             </button>
           </div>
         </div>
@@ -97,7 +97,7 @@
         <div class="modal-body">
           <div v-if="warehouseChars.length === 0" class="empty-tip">这个仓库还没有字哦～</div>
           <div v-else class="char-grid">
-            <div v-for="(c, i) in warehouseChars" :key="i" class="char-card">
+            <div v-for="(c, i) in warehouseChars" :key="i" class="char-card" @click="learnCharFromWarehouse(c)">
               <div class="cc-hanzi">{{ c.hanzi }}</div>
               <div class="cc-pinyin">{{ c.pinyin }}</div>
             </div>
@@ -162,6 +162,7 @@ const showWarehouseModal = ref(false);
 const selectedWarehouse = ref(1);
 const warehouseChars = ref([]);
 const warehouseNames = { 1: '第一仓库', 2: '第二仓库', 3: '第三仓库', 4: '第四仓库' };
+const isWarehouseReview = ref(false);
 const error = ref('');
 
 const current = computed(() => queue.value[qIndex.value] || null);
@@ -314,6 +315,12 @@ function learnNext() {
 }
 
 function doLearnNext() {
+  if (isWarehouseReview.value) {
+    // 从仓库复习的字，学完后回到游戏界面
+    isWarehouseReview.value = false;
+    phase.value = 'playing';
+    return;
+  }
   if (learnIndex.value < learnQueue.value.length - 1) {
     learnIndex.value += 1;
   } else {
@@ -452,6 +459,19 @@ async function showWarehouseChars(warehouse) {
 
 function closeWarehouseModal() {
   showWarehouseModal.value = false;
+}
+
+/**
+ * 从仓库弹窗点击字卡，进入教学流程
+ */
+function learnCharFromWarehouse(char) {
+  closeWarehouseModal();
+  // 设置学习队列，进入学习阶段
+  learnQueue.value = [{ char_id: char.char_id, hanzi: char.hanzi, pinyin: char.pinyin }];
+  learnIndex.value = 0;
+  phase.value = 'learning';
+  // 记录这个字是从仓库复习的，学完后回到游戏界面
+  isWarehouseReview.value = true;
 }
 
 /**
@@ -777,6 +797,13 @@ onMounted(loadBatch);
   border-radius: 12px;
   padding: 8px 4px;
   text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.char-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-color: #ffc97a;
 }
 .cc-hanzi {
   font-size: 28px;
