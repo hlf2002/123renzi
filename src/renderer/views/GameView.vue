@@ -155,7 +155,7 @@ const flyingChar = ref('');
 const flyingWarehouse = ref(0);
 const flyingPos = ref({ x: 0, y: 0, scale: 1, opacity: 1 });
 const flyingChars = ref([]); // 集体飞入的字
-const knownChars = ref([]); // 当前批次中认识的字
+const knownCharsByWarehouse = ref({}); // 按仓库分组的认识的字 {1: [...], 2: [...], 3: [...], 4: [...]}
 
 // 仓库字卡弹窗
 const showWarehouseModal = ref(false);
@@ -248,22 +248,28 @@ async function submit() {
     const res = await api.session.submit(userId, results);
     applyLevel(res);
     const toLearn = cur.item.chars.filter((c, i) => cur.charsView[i].marked);
-    // 记录认识的字（没有被标记为不认识的字）
-    knownChars.value = cur.item.chars.filter((c, i) => !cur.charsView[i].marked).map(c => c.hanzi);
+
+    // 按目标仓库分组认识的字
+    const byWarehouse = { 1: [], 2: [], 3: [], 4: [] };
+    if (res && res.results) {
+      for (const r of res.results) {
+        if (r.to && byWarehouse[r.to]) {
+          const char = cur.item.chars.find(c => c.char_id === r.charId);
+          if (char) byWarehouse[r.to].push(char.hanzi);
+        }
+      }
+    }
+    knownCharsByWarehouse.value = byWarehouse;
+
     if (toLearn.length > 0) {
       learnQueue.value = toLearn;
       learnIndex.value = 0;
       phase.value = 'learning';
-      // LearnCard会自动朗读完整讲解，不需要单独读字
     } else {
-      // 没有不认识的字，认识的字集体飞入W4
-      if (knownChars.value.length > 0) {
-        playGroupFlyAnimation(knownChars.value, 4, () => {
-          next();
-        });
-      } else {
+      // 没有不认识的字，认识的字按仓库分组飞入
+      playAllWarehouseFlyAnimation(byWarehouse, () => {
         next();
-      }
+      });
     }
   } catch (e) {
     error.value = '保存失败：' + (e && e.message ? e.message : e);
@@ -294,14 +300,10 @@ function learnNext() {
   if (char) {
     playFlyAnimation(char.hanzi, 1, () => {
       if (isLast) {
-        // 最后一个学习卡片完成后，认识的字集体飞入W4
-        if (knownChars.value.length > 0) {
-          playGroupFlyAnimation(knownChars.value, 4, () => {
-            doLearnNext();
-          });
-        } else {
+        // 最后一个学习卡片完成后，认识的字按仓库分组飞入
+        playAllWarehouseFlyAnimation(knownCharsByWarehouse.value, () => {
           doLearnNext();
-        }
+        });
       } else {
         doLearnNext();
       }
@@ -452,6 +454,93 @@ function closeWarehouseModal() {
   showWarehouseModal.value = false;
 }
 
+/**
+ * 播放多个仓库的字同时飞入动画
+ * @param {Object} byWarehouse - 按仓库分组的字 {1: [...], 2: [...], 3: [...], 4: [...]}
+ * @param {Function} callback - 动画结束回调
+ */
+function playAllWarehouseFlyAnimation(byWarehouse, callback) {
+  // 收集所有需要飞入的字，带上目标仓库
+  const allItems = [];
+  for (let w = 1; w <= 4; w++) {
+    const chars = byWarehouse[w] || [];
+    for (const char of chars) {
+      allItems.push({ char, warehouse: w });
+    }
+  }
+
+  if (allItems.length === 0) {
+    if (callback) callback();
+    return;
+  }
+
+  // 获取每个仓库的目标位置
+  const warehousePos = {};
+  if (warehouseBarRef.value && warehouseBarRef.value.$el) {
+    const wares = warehouseBarRef.value.$el.querySelectorAll('.ware');
+    for (let w = 1; w <= 4; w++) {
+      if (wares[w - 1]) {
+        const rect = wares[w - 1].getBoundingClientRect();
+        warehousePos[w] = {
+          x: rect.left + rect.width / 2 - 40,
+          y: rect.top + rect.height / 2 - 40,
+        };
+      }
+    }
+  }
+  // 默认位置
+  for (let w = 1; w <= 4; w++) {
+    if (!warehousePos[w]) {
+      warehousePos[w] = { x: window.innerWidth / 2 - 40, y: window.innerHeight - 80 };
+    }
+  }
+
+  // 生成每个字的起始位置（屏幕中心区域，错落排列）
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2 - 50;
+  const items = allItems.map((item, i) => {
+    const col = i % 4;
+    const row = Math.floor(i / 4);
+    const offsetX = (col - 1.5) * 80;
+    const offsetY = row * 80 - (Math.floor(allItems.length / 4) * 40);
+    const target = warehousePos[item.warehouse];
+    return {
+      char: item.char,
+      warehouse: item.warehouse,
+      x: centerX - 40 + offsetX,
+      y: centerY - 40 + offsetY,
+      toX: target.x + (Math.random() - 0.5) * 30,
+      toY: target.y + (Math.random() - 0.5) * 30,
+      scale: 1,
+      opacity: 1,
+      delay: i * 30,
+    };
+  });
+
+  flyingChars.value = items;
+  isFlying.value = true;
+
+  // 下一帧开始移动
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flyingChars.value = items.map(item => ({
+        ...item,
+        x: item.toX,
+        y: item.toY,
+        scale: 0.2,
+        opacity: 0,
+      }));
+    });
+  });
+
+  // 动画结束后执行回调
+  setTimeout(() => {
+    isFlying.value = false;
+    flyingChars.value = [];
+    if (callback) callback();
+  }, 900);
+}
+
 watch(phase, (v) => {
   if (v === 'playing') error.value = '';
 });
@@ -465,10 +554,11 @@ onMounted(loadBatch);
 
 <style scoped>
 .game {
-  min-height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #fff7ea 0%, #fffdf6 100%);
+  overflow: hidden;
 }
 .top {
   display: flex;
