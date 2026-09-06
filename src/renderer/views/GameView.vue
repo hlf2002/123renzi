@@ -55,9 +55,22 @@
       <!-- 底部：累计进度 + 仓库 -->
       <footer class="foot">
         <div class="progress-line">已认识 {{ level ? level.skill_level : 0 }} 个字，继续加油！</div>
-        <WarehouseBar :counts="counts" />
+        <WarehouseBar ref="warehouseBarRef" :counts="counts" :active="flyingWarehouse" />
       </footer>
     </template>
+
+    <!-- 字卡飞入仓库动画层 -->
+    <div v-if="isFlying" class="fly-layer">
+      <div
+        class="fly-char"
+        :style="{
+          left: flyingPos.x + 'px',
+          top: flyingPos.y + 'px',
+          transform: flyingPos.scale ? `scale(${flyingPos.scale})` : 'scale(1)',
+          opacity: flyingPos.opacity,
+        }"
+      >{{ flyingChar }}</div>
+    </div>
 
     <!-- 真正学完（暂无新字/复习字）时的收尾页 -->
     <div v-else-if="phase === 'done'" class="done">
@@ -100,6 +113,13 @@ const counts = ref({ 1: 0, 2: 0, 3: 0, 4: 0 });
 const learnQueue = ref([]);
 const userNickname = ref('小朋友');
 const learnIndex = ref(0);
+
+// 字卡飞入仓库动画
+const warehouseBarRef = ref(null);
+const isFlying = ref(false);
+const flyingChar = ref('');
+const flyingWarehouse = ref(0);
+const flyingPos = ref({ x: 0, y: 0, scale: 1, opacity: 1 });
 const error = ref('');
 
 const current = computed(() => queue.value[qIndex.value] || null);
@@ -217,12 +237,66 @@ function next() {
 }
 
 function learnNext() {
+  // 播放字卡飞入仓库动画
+  const char = learnQueue.value[learnIndex.value];
+  if (char) {
+    playFlyAnimation(char.hanzi, 1, () => {
+      doLearnNext();
+    });
+  } else {
+    doLearnNext();
+  }
+}
+
+function doLearnNext() {
   if (learnIndex.value < learnQueue.value.length - 1) {
     learnIndex.value += 1;
-    // LearnCard会自动朗读完整讲解，不需要单独读字
   } else {
     next();
   }
+}
+
+/**
+ * 播放字卡飞入仓库动画
+ * @param {string} char - 字
+ * @param {number} warehouse - 目标仓库（1-4）
+ * @param {Function} callback - 动画结束回调
+ */
+function playFlyAnimation(char, warehouse, callback) {
+  // 获取学习卡片中字的位置（屏幕中心偏上）
+  const fromX = window.innerWidth / 2 - 40;
+  const fromY = window.innerHeight / 2 - 100;
+
+  // 获取目标仓库的位置
+  let toX = fromX;
+  let toY = window.innerHeight - 80;
+  if (warehouseBarRef.value && warehouseBarRef.value.$el) {
+    const wares = warehouseBarRef.value.$el.querySelectorAll('.ware');
+    if (wares[warehouse - 1]) {
+      const rect = wares[warehouse - 1].getBoundingClientRect();
+      toX = rect.left + rect.width / 2 - 40;
+      toY = rect.top + rect.height / 2 - 40;
+    }
+  }
+
+  flyingChar.value = char;
+  flyingWarehouse.value = warehouse;
+  flyingPos.value = { x: fromX, y: fromY, scale: 1, opacity: 1 };
+  isFlying.value = true;
+
+  // 下一帧开始移动
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flyingPos.value = { x: toX, y: toY, scale: 0.3, opacity: 0 };
+    });
+  });
+
+  // 动画结束后执行回调
+  setTimeout(() => {
+    isFlying.value = false;
+    flyingWarehouse.value = 0;
+    if (callback) callback();
+  }, 700);
 }
 
 watch(phase, (v) => {
@@ -356,4 +430,31 @@ onMounted(loadBatch);
 .stat span { font-size: 13px; color: #8a6d3b; }
 .done-bar { max-width: 620px; margin: 6px 0 14px; }
 .done-actions { display: flex; gap: 14px; }
+
+/* 字卡飞入仓库动画 */
+.fly-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+.fly-char {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 800;
+  color: #d94f2b;
+  background: #fff;
+  border: 4px solid #ffd9a0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
 </style>
