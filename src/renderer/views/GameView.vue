@@ -55,7 +55,7 @@
       <!-- 底部：累计进度 + 仓库 -->
       <footer class="foot">
         <div class="progress-line">已认识 {{ level ? level.skill_level : 0 }} 个字，继续加油！</div>
-        <WarehouseBar ref="warehouseBarRef" :counts="counts" :active="flyingWarehouse" />
+        <WarehouseBar ref="warehouseBarRef" :counts="counts" :active="flyingWarehouse" @select="showWarehouseChars" />
       </footer>
     </template>
 
@@ -85,6 +85,25 @@
           transitionDelay: item.delay + 'ms',
         }"
       >{{ item.char }}</div>
+    </div>
+
+    <!-- 仓库字卡弹窗 -->
+    <div v-if="showWarehouseModal" class="modal-mask" @click.self="closeWarehouseModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>{{ warehouseNames[selectedWarehouse] }}（{{ warehouseChars.length }}字）</h3>
+          <button class="modal-close" @click="closeWarehouseModal">×</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="warehouseChars.length === 0" class="empty-tip">这个仓库还没有字哦～</div>
+          <div v-else class="char-grid">
+            <div v-for="(c, i) in warehouseChars" :key="i" class="char-card">
+              <div class="cc-hanzi">{{ c.hanzi }}</div>
+              <div class="cc-pinyin">{{ c.pinyin || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 真正学完（暂无新字/复习字）时的收尾页 -->
@@ -137,6 +156,12 @@ const flyingWarehouse = ref(0);
 const flyingPos = ref({ x: 0, y: 0, scale: 1, opacity: 1 });
 const flyingChars = ref([]); // 集体飞入的字
 const knownChars = ref([]); // 当前批次中认识的字
+
+// 仓库字卡弹窗
+const showWarehouseModal = ref(false);
+const selectedWarehouse = ref(1);
+const warehouseChars = ref([]);
+const warehouseNames = { 1: '第一仓库', 2: '第二仓库', 3: '第三仓库', 4: '第四仓库' };
 const error = ref('');
 
 const current = computed(() => queue.value[qIndex.value] || null);
@@ -406,6 +431,27 @@ function playGroupFlyAnimation(chars, warehouse, callback) {
   }, 900);
 }
 
+/**
+ * 显示仓库中的字卡
+ */
+async function showWarehouseChars(warehouse) {
+  selectedWarehouse.value = warehouse;
+  warehouseChars.value = [];
+  showWarehouseModal.value = true;
+  try {
+    const res = await api.progress.get(userId);
+    if (res && res.rows) {
+      warehouseChars.value = res.rows.filter(r => r.warehouse === warehouse);
+    }
+  } catch (e) {
+    console.error('获取仓库字列表失败:', e.message);
+  }
+}
+
+function closeWarehouseModal() {
+  showWarehouseModal.value = false;
+}
+
 watch(phase, (v) => {
   if (v === 'playing') error.value = '';
 });
@@ -568,5 +614,88 @@ onMounted(loadBatch);
   width: 60px;
   height: 60px;
   font-size: 36px;
+}
+
+/* 仓库字卡弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.modal-box {
+  background: #fff;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 2px solid #ffe0ae;
+  background: #fff7ea;
+}
+.modal-header h3 {
+  margin: 0;
+  color: #d94f2b;
+  font-size: 18px;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #ffe9c7;
+  color: #8a6d3b;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+.empty-tip {
+  text-align: center;
+  color: #b59a72;
+  padding: 40px 0;
+  font-size: 15px;
+}
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 10px;
+}
+.char-card {
+  background: #fff;
+  border: 2px solid #ffe0ae;
+  border-radius: 12px;
+  padding: 8px 4px;
+  text-align: center;
+}
+.cc-hanzi {
+  font-size: 28px;
+  font-weight: 700;
+  color: #5a4630;
+}
+.cc-pinyin {
+  font-size: 11px;
+  color: #b59a72;
+  margin-top: 2px;
 }
 </style>
