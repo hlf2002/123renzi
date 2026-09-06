@@ -14,7 +14,6 @@ contextBridge.exposeInMainWorld('api', {
   session: {
     get: (userId) => ipcRenderer.invoke('session:get', userId),
     submit: (userId, results) => ipcRenderer.invoke('session:submit', userId, results),
-    submitProbe: (userId, known) => ipcRenderer.invoke('session:submitProbe', userId, known),
   },
   progress: {
     get: (userId) => ipcRenderer.invoke('progress:get', userId),

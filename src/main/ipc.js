@@ -31,9 +31,6 @@ function registerIpc(ctx) {
     if (!Array.isArray(results)) throw new Error('results must be array');
     return ctx.core.submitSession(uid, results);
   });
-  ipcMain.handle('session:submitProbe', (_e, userId, known) => {
-    return ctx.core.submitProbe(intId(userId), !!known);
-  });
 
   // ---- 进度 / 等级 / 日志 ----
   ipcMain.handle('progress:get', (_e, userId) => ctx.core.getProgress(intId(userId)));

@@ -110,7 +110,6 @@ const currentSentence = computed(() => {
 const carrierClass = computed(() => (session.value ? 'car-' + session.value.carrier : 'car-char'));
 const kindTip = computed(() => {
   if (!current.value) return '';
-  if (current.value.kind === 'probe') return '考考你～这个字认识吗？';
   const t = current.value.item.type;
   if (t === 'char') return '这是一个字';
   if (t === 'word') return '这是一个词语';
@@ -162,21 +161,12 @@ function buildQueue() {
   const s = session.value;
   const q = [];
   const items = [...s.newItems, ...s.reviewItems];
-  let inserted = 0;
   for (const it of items) {
     q.push({
       kind: 'item',
       item: it,
       charsView: it.chars.map((c) => ({ ...c, marked: false })),
     });
-    inserted++;
-    if (inserted % 5 === 0 && s.probe) {
-      q.push({
-        kind: 'probe',
-        probe: s.probe,
-        charsView: [{ char_id: 'probe', hanzi: s.probe.hanzi, pinyin: s.probe.pinyin, marked: false }],
-      });
-    }
   }
   queue.value = q;
 }
@@ -192,23 +182,16 @@ async function submit() {
   submitting.value = true;
   try {
     const cur = current.value;
-    if (cur.kind === 'item') {
-      const results = cur.item.chars.map((c, i) => ({ charId: c.char_id, known: !cur.charsView[i].marked }));
-      const res = await api.session.submit(userId, results);
-      applyLevel(res);
-      const toLearn = cur.item.chars.filter((c, i) => cur.charsView[i].marked);
-      if (toLearn.length > 0) {
-        learnQueue.value = toLearn;
-        learnIndex.value = 0;
-        phase.value = 'learning';
-        // LearnCard会自动朗读完整讲解，不需要单独读字
-      } else {
-        next();
-      }
+    const results = cur.item.chars.map((c, i) => ({ charId: c.char_id, known: !cur.charsView[i].marked }));
+    const res = await api.session.submit(userId, results);
+    applyLevel(res);
+    const toLearn = cur.item.chars.filter((c, i) => cur.charsView[i].marked);
+    if (toLearn.length > 0) {
+      learnQueue.value = toLearn;
+      learnIndex.value = 0;
+      phase.value = 'learning';
+      // LearnCard会自动朗读完整讲解，不需要单独读字
     } else {
-      const known = !cur.charsView[0].marked;
-      const res = await api.session.submitProbe(userId, known);
-      applyLevel(res);
       next();
     }
   } catch (e) {
