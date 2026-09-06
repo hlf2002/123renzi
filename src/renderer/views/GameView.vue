@@ -18,8 +18,8 @@
     <!-- 主游戏区 -->
     <template v-else-if="phase === 'playing' || phase === 'learning'">
       <div class="stage" v-if="current">
-        <div class="kind-tip" v-if="phase === 'playing'">{{ kindTip }}</div>
-        <div class="sentence" v-if="phase === 'playing'" :class="current.kind === 'probe' ? 'single' : carrierClass">
+        <p class="hint" v-if="phase === 'playing'">👇 <b>点一点你不认识的字，会的字不用点</b></p>
+        <div class="sentence" v-if="phase === 'playing'" :class="carrierClass">
           <!-- 字格：可点选 -->
           <div
             v-for="(ch, i) in current.charsView"
@@ -32,8 +32,6 @@
             <span v-if="ch.marked" class="mark-tag">不认识</span>
           </div>
         </div>
-
-        <p class="hint" v-if="phase === 'playing'">👇 点一点你不认识的字，会的字不用点</p>
 
         <div class="actions" v-if="phase === 'playing'">
           <button class="btn primary big" :disabled="submitting" @click="submit">
