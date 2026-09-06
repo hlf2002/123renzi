@@ -107,13 +107,10 @@ function createAppCore(storage, pack) {
 
   function getSession(userId, now = Date.now()) {
     const lv = engine.ensureLevel(storage, userId, now);
-    let carrier = content.carrierFor(lv.skill_level);
-    // 年级≥二年级时强制启用句子（用户需求：升到二年级就能看到句子）
-    // pickItemsWithFallback 会逐级放宽，找不到句子时自动退到短语/词/单字
+    // 始终优先使用句子，pickItemsWithFallback 会逐级放宽：
+    // 句子 → 短语 → 词语 → 单字，只有没有词语/句子时才用单字
+    const carrier = 'sentence';
     const lvView = engine.getLevelView(storage, userId, now);
-    if ((GRADE_ORDER[lvView.grade] || 0) >= 2) {
-      carrier = 'sentence';
-    }
     const newChars = pickNewChars(userId, now);
     const due = scheduler.getDue(storage, userId, now);
     const reviewChars = due.slice(0, SESSION_REVIEW).map((p) => p.char_id);
