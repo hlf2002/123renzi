@@ -450,11 +450,12 @@ function playFlyAnimation(char, warehouse, callback) {
   let toX = fromX;
   let toY = window.innerHeight - 80;
   if (warehouseBarRef.value && warehouseBarRef.value.$el) {
-    const wares = warehouseBarRef.value.$el.querySelectorAll('.ware');
+    const wares = warehouseBarRef.value.$el.querySelectorAll('.house');
     if (wares[warehouse - 1]) {
       const rect = wares[warehouse - 1].getBoundingClientRect();
       toX = rect.left + rect.width / 2 - 40;
-      toY = rect.top + rect.height / 2 - 40;
+      // 拱洞在房子上半部分
+      toY = rect.top + rect.height * 0.45 - 40;
     }
   }
 
@@ -494,11 +495,11 @@ function playGroupFlyAnimation(chars, warehouse, callback) {
   let toX = window.innerWidth / 2 - 40;
   let toY = window.innerHeight - 80;
   if (warehouseBarRef.value && warehouseBarRef.value.$el) {
-    const wares = warehouseBarRef.value.$el.querySelectorAll('.ware');
+    const wares = warehouseBarRef.value.$el.querySelectorAll('.house');
     if (wares[warehouse - 1]) {
       const rect = wares[warehouse - 1].getBoundingClientRect();
       toX = rect.left + rect.width / 2 - 40;
-      toY = rect.top + rect.height / 2 - 40;
+      toY = rect.top + rect.height * 0.45 - 40;
     }
   }
 
@@ -604,13 +605,13 @@ function playAllWarehouseFlyAnimation(byWarehouse, callback) {
   // 获取每个仓库的目标位置
   const warehousePos = {};
   if (warehouseBarRef.value && warehouseBarRef.value.$el) {
-    const wares = warehouseBarRef.value.$el.querySelectorAll('.ware');
+    const wares = warehouseBarRef.value.$el.querySelectorAll('.house');
     for (let w = 1; w <= 4; w++) {
       if (wares[w - 1]) {
         const rect = wares[w - 1].getBoundingClientRect();
         warehousePos[w] = {
           x: rect.left + rect.width / 2 - 40,
-          y: rect.top + rect.height / 2 - 40,
+          y: rect.top + rect.height * 0.45 - 40,
         };
       }
     }
