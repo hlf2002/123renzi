@@ -67,7 +67,7 @@ const HOUSES = {
   position: absolute;
   left: 50%;
   bottom: 7%;
-  transform: translateX(-50%);
+  transform: translateX(calc(-50% - 10px));
   text-align: center;
   z-index: 2;
   white-space: nowrap;
