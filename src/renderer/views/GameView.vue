@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api } from '../store';
 import WarehouseBar from '../components/WarehouseBar.vue';
@@ -198,6 +198,7 @@ const speechTip = computed(() => {
 });
 
 /** 朗读验证：识别当前句子，读对了才允许提交 */
+let autoSubmitTimer = null;
 async function speakToPass() {
   if (speechState.value === 'listening' || speechState.value === 'loading') return;
   const target = currentSentence.value || (current.value && current.value.item && current.value.item.text) || '';
@@ -213,6 +214,10 @@ async function speakToPass() {
     speechPartial.value = '';
     if (isCorrect(target, hyp)) {
       speechState.value = 'pass';
+      speechLastHyp.value = '';
+      // 识别通过后自动提交（相当于点了 全都会/确定），直接进入下一题；
+      // 稍等片刻让“读得真棒”反馈可见
+      autoSubmitTimer = setTimeout(() => { autoSubmitTimer = null; submit(); }, 600);
     } else {
       // 记录匹配明细便于诊断：目标/识别/相似度
       console.warn('[语音匹配失败]', JSON.stringify(matchDetail(target, hyp)), '目标:', target, '识别:', hyp);
@@ -633,6 +638,18 @@ watch(phase, (v) => {
     speechState.value = 'idle';
     speechPartial.value = '';
     speechLastHyp.value = '';
+  }
+  // 离开 playing 时取消挂起的自动提交，避免误提交
+  if (v !== 'playing' && autoSubmitTimer) {
+    clearTimeout(autoSubmitTimer);
+    autoSubmitTimer = null;
+  }
+});
+
+onUnmounted(() => {
+  if (autoSubmitTimer) {
+    clearTimeout(autoSubmitTimer);
+    autoSubmitTimer = null;
   }
 });
 
