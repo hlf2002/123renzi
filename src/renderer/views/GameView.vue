@@ -220,7 +220,7 @@ async function speakToPass() {
       autoFailCount.value = 0;
       // 识别通过后自动提交（相当于点了 全都会/确定），直接进入下一题；
       // 稍等片刻让“读得真棒”反馈可见
-      autoSubmitTimer = setTimeout(() => { autoSubmitTimer = null; submit(); }, 600);
+      autoSubmitTimer = setTimeout(() => { autoSubmitTimer = null; submit(); }, 300);
     } else {
       // 记录匹配明细便于诊断：目标/识别/相似度
       console.warn('[语音匹配失败]', JSON.stringify(matchDetail(target, hyp)), '目标:', target, '识别:', hyp);
@@ -639,11 +639,9 @@ function playAllWarehouseFlyAnimation(byWarehouse, callback) {
   }, 900);
 }
 
-/** 进入新题后自动开始监听（相当于自动点击 读一读） */
+/** 进入新题后立即开始监听（相当于自动点击 读一读），不等待 */
 function startAutoListen() {
-  setTimeout(() => {
-    if (phase.value === 'playing' && speechState.value === 'idle') speakToPass();
-  }, 500);
+  if (phase.value === 'playing' && speechState.value === 'idle') speakToPass();
 }
 
 watch(phase, (v) => {
