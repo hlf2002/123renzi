@@ -165,7 +165,7 @@ export function stopSpeaking() {
 }
 
 export const WAREHOUSE_NAMES = { 1: '刚认识', 2: '记得牢', 3: '很熟悉', 4: '永远记得' };
-export const WAREHOUSE_COLORS = { 1: '#ffb347', 2: '#ffd34d', 3: '#7fd06b', 4: '#4bb3ff' };
+export const WAREHOUSE_COLORS = { 1: '#9ed670', 2: '#ffb366', 3: '#ff9eb5', 4: '#c9a0e8' };
 
 export function pinyinOf(ch) {
   return (ch && ch.pinyin) || '';
