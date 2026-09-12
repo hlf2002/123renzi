@@ -32,11 +32,11 @@ export function ensureModel() {
  * 一次性识别：等待用户朗读，静音或超时后自动结束
  * @param {Object} opts
  * @param {Function} [opts.onPartial] 实时识别中间结果的回调 (text) => void
- * @param {number} [opts.silenceMs] 连续静音多久判定说完（默认 1200ms）
+ * @param {number} [opts.silenceMs] 连续静音多久判定说完（默认 1600ms，孩子朗读停顿多）
  * @param {number} [opts.maxMs] 最长录音时长（默认 12s）
  * @returns {Promise<string>} 识别文本（可能为空串）
  */
-export async function recognizeOnce({ onPartial, silenceMs = 1200, maxMs = 12000 } = {}) {
+export async function recognizeOnce({ onPartial, silenceMs = 1600, maxMs = 12000 } = {}) {
   const m = await ensureModel();
   const rec = new m.KaldiRecognizer(SAMPLE_RATE);
   let stream = null;
@@ -56,12 +56,15 @@ export async function recognizeOnce({ onPartial, silenceMs = 1200, maxMs = 12000
         settled = true;
         cleanup();
         try {
-          rec.retrieveFinalResult();
+          // retrieveFinalResult 同步返回最终结果，优先用它的返回值（不依赖事件时序）
+          const fr = rec.retrieveFinalResult();
+          if (fr && fr.result && typeof fr.result.text === 'string' && fr.result.text.trim()) {
+            finalText = fr.result.text;
+          }
         } catch (e) {
           /* ignore */
         }
-        // 稍等最终结果事件送达
-        setTimeout(() => resolve(finalText.trim()), 350);
+        resolve(finalText.trim());
       };
 
       const cleanup = () => {

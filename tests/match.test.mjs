@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { toPinyinSeq, seqSim, isCorrect } from '../src/renderer/speech/match.mjs';
+import { toPinyinSeq, seqSim, lcsLen, isCorrect } from '../src/renderer/speech/match.mjs';
 
 test('toPinyinSeq：正常句子', () => {
   assert.deepStrictEqual(toPinyinSeq('小猫在河边钓鱼'), ['xiao', 'mao', 'zai', 'he', 'bian', 'diao', 'yu']);
@@ -24,6 +24,11 @@ test('seqSim：完全无关=0', () => {
   assert.strictEqual(seqSim(['xiao'], ['da']), 0);
 });
 
+test('lcsLen：公共子序列', () => {
+  assert.strictEqual(lcsLen(['xiao', 'mao', 'zai'], ['xiao', 'zai']), 2);
+  assert.strictEqual(lcsLen(['a', 'b', 'c'], ['b', 'c', 'a']), 2); // b,c
+});
+
 test('isCorrect：整句读对', () => {
   assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在河边钓鱼'), true);
 });
@@ -32,7 +37,12 @@ test('isCorrect：同音字容错（河→喝）', () => {
   assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在喝边钓鱼'), true);
 });
 
-test('isCorrect：读错/漏读较多', () => {
+test('isCorrect：漏读个别字仍通过（孩子读不全）', () => {
+  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在河边钓'), true);
+  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫河边钓鱼'), true);
+});
+
+test('isCorrect：读错较多判失败', () => {
   assert.strictEqual(isCorrect('小猫在河边钓鱼', '大树上有鸟'), false);
 });
 
@@ -49,6 +59,10 @@ test('isCorrect：空目标不通过', () => {
   assert.strictEqual(isCorrect('', '随便'), false);
 });
 
-test('isCorrect：朗读多字里包含目标音', () => {
-  assert.strictEqual(isCorrect('鱼', '小猫钓鱼'), true);
+test('isCorrect：短词语漏一半判失败', () => {
+  // 2~4 字目标阈值 0.55：漏一半不通过
+  assert.strictEqual(isCorrect('东方', '东'), false);
+  assert.strictEqual(isCorrect('苹果', '苹'), false);
+  assert.strictEqual(isCorrect('苹果', '平果'), true); // 同音替换
+  assert.strictEqual(isCorrect('东方', '东方'), true);
 });

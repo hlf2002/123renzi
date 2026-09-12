@@ -139,7 +139,7 @@ import { api } from '../store';
 import WarehouseBar from '../components/WarehouseBar.vue';
 import LearnCard from '../components/LearnCard.vue';
 import { recognizeOnce, ensureModel } from '../speech/recognizer';
-import { isCorrect } from '../speech/match';
+import { isCorrect, matchDetail } from '../speech/match';
 
 const route = useRoute();
 const router = useRouter();
@@ -176,6 +176,7 @@ const error = ref('');
 // 朗读验证状态：idle | loading | listening | pass | fail | error
 const speechState = ref('idle');
 const speechPartial = ref('');
+const speechLastHyp = ref('');
 
 const speechBtnText = computed(() => {
   if (speechState.value === 'loading') return '⏳ 加载语音识别…';
@@ -190,7 +191,7 @@ const speechTip = computed(() => {
     case 'loading': return '正在准备语音识别，请稍等…';
     case 'listening': return speechPartial.value ? `听你说：${speechPartial.value}` : '请大声读出这句话';
     case 'pass': return '读得真准！现在可以继续啦 🎉';
-    case 'fail': return '没听清，再读一遍试试！';
+    case 'fail': return speechLastHyp.value ? `识别到：“${speechLastHyp.value}”，好像没读全，再读一遍试试！` : '没听清，再读一遍试试！';
     case 'error': return '麦克风不可用，请检查权限后重试';
     default: return '';
   }
@@ -213,6 +214,9 @@ async function speakToPass() {
     if (isCorrect(target, hyp)) {
       speechState.value = 'pass';
     } else {
+      // 记录匹配明细便于诊断：目标/识别/相似度
+      console.warn('[语音匹配失败]', JSON.stringify(matchDetail(target, hyp)), '目标:', target, '识别:', hyp);
+      speechLastHyp.value = hyp;
       speechState.value = 'fail';
     }
   } catch (e) {
@@ -628,6 +632,7 @@ watch(phase, (v) => {
     // 每个新句子都要重新朗读验证
     speechState.value = 'idle';
     speechPartial.value = '';
+    speechLastHyp.value = '';
   }
 });
 
