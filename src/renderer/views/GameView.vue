@@ -34,7 +34,7 @@
         </div>
 
         <div class="actions" v-if="phase === 'playing'">
-          <button class="btn primary big" :disabled="submitting || speechState !== 'pass'" @click="submit">
+          <button class="btn primary big" :disabled="submitting" @click="submit">
             {{ submitting ? '保存中…' : (hasMarked ? '确定' : '全都会') }}
           </button>
         </div>
