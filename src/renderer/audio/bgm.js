@@ -51,3 +51,20 @@ export function resumeBgm() {
     audio.play().catch(() => {});
   }
 }
+
+// 窗口失焦（切到别的 app/窗口）时暂停背景音；重新获得焦点时恢复
+if (typeof window !== 'undefined') {
+  window.addEventListener('blur', () => {
+    if (audio && !audio.paused) {
+      audio.pause();
+      // 记录是被 blur 暂停的，focus 时恢复
+      window.__bgmPausedByBlur = true;
+    }
+  });
+  window.addEventListener('focus', () => {
+    if (audio && window.__bgmPausedByBlur) {
+      window.__bgmPausedByBlur = false;
+      audio.play().catch(() => {});
+    }
+  });
+}
