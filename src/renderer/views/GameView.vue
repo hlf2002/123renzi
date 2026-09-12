@@ -26,7 +26,7 @@
           class="mic-btn disabled"
           title="没有检测到麦克风"
         >🎤</button>
-        <span v-if="!micAvailable" class="mic-unavailable">不可用</span>
+        <span v-if="!micAvailable" class="mic-unavailable">未连接</span>
         <div class="mic-tip" :class="speechState" v-if="micAvailable && speechTip">{{ speechTip }}</div>
       </div>
     </header>
