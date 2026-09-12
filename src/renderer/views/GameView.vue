@@ -10,18 +10,24 @@
         </div>
         <div class="lv-sub">已认识 {{ level.skill_level }} 个字 · 按同龄学习进度估算</div>
       </div>
+      <div class="spacer"></div>
       <!-- 右上角：麦克风图标（朗读验证） -->
       <div class="mic-area" v-if="phase === 'playing'">
         <button
+          v-if="micAvailable"
           class="mic-btn"
           :class="{ listening: speechState === 'listening', pass: speechState === 'pass', fail: speechState === 'fail' }"
           :disabled="speechState === 'listening' || speechState === 'loading'"
           @click="speakToPass"
           title="点我读一读"
         >🎤</button>
-        <div class="mic-tip" :class="speechState" v-if="speechTip">{{ speechTip }}</div>
+        <button
+          v-else
+          class="mic-btn disabled"
+          title="没有检测到麦克风"
+        >🚫</button>
+        <div class="mic-tip" :class="speechState" v-if="micAvailable && speechTip">{{ speechTip }}</div>
       </div>
-      <div class="spacer"></div>
     </header>
 
     <div v-if="phase === 'loading'" class="center">继续学习中…</div>
@@ -181,6 +187,26 @@ const error = ref('');
 const speechState = ref('idle');
 const speechPartial = ref('');
 const speechLastHyp = ref('');
+// 麦克风设备是否存在（0 个输入设备 = 没插麦克风）
+const micAvailable = ref(true);
+
+async function checkMicrophone() {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      micAvailable.value = false;
+      return;
+    }
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const hasMic = devices.some((d) => d.kind === 'audioinput');
+    micAvailable.value = hasMic;
+    // 刚检测到麦克风且当前是 idle，自动开始监听
+    if (hasMic && speechState.value === 'idle' && phase.value === 'playing') {
+      startAutoListen();
+    }
+  } catch (e) {
+    micAvailable.value = false;
+  }
+}
 
 const speechBtnText = computed(() => {
   if (speechState.value === 'loading') return '⏳ 加载语音识别…';
@@ -643,7 +669,7 @@ function playAllWarehouseFlyAnimation(byWarehouse, callback) {
 
 /** 进入新题后立即开始监听（相当于自动点击 读一读），不等待 */
 function startAutoListen() {
-  if (phase.value === 'playing' && speechState.value === 'idle') speakToPass();
+  if (phase.value === 'playing' && speechState.value === 'idle' && micAvailable.value) speakToPass();
 }
 
 watch(phase, (v) => {
@@ -685,6 +711,11 @@ function goHome() {
 onMounted(() => {
   playGameBgm();
   loadBatch();
+  // 检测麦克风是否可用，监听热插拔
+  checkMicrophone();
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', checkMicrophone);
+  }
 });
 </script>
 
@@ -795,6 +826,7 @@ onMounted(() => {
 }
 .mic-btn:hover { transform: scale(1.08); }
 .mic-btn:disabled { cursor: default; opacity: 0.8; }
+.mic-btn.disabled { background: #eee; cursor: default; font-size: 20px; box-shadow: none; }
 .mic-btn.listening { background: #ffe0e0; animation: micPulse 1s ease-in-out infinite; }
 .mic-btn.pass { background: #d6f5dc; }
 .mic-btn.fail { background: #ffe8d6; }
