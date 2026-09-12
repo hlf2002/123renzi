@@ -1,9 +1,11 @@
 // 语音识别结果与目标文本的匹配逻辑（纯函数，可单测）
-// 思路：目标文本与识别文本都转成"去声调拼音序列"（同音字天然归一），
-// 用两种度量取更宽容者：
-//  1) 编辑距离归一化相似度  —— 容忍同音替换
-//  2) LCS 子序列覆盖度      —— 容忍漏读个别字、多读几个字
-// 单字目标：识别结果里出现该读音即判对（同音容错，如"瀑"→"铺"）
+// 思路：目标文本与识别文本都转成"去声调拼音序列"（同音字天然归一）。
+// 匹配规则（用户确认）：
+//  - 不可以漏字：目标每个字必须按序在识别结果里找到匹配
+//  - 同音字可以过（拼音相同）
+//  - 近音字也可以过：覆盖语音识别最常见的声学混淆
+//    （前后鼻音 in/ing、an/ang、平翘舌、ao/ou 等），
+//    解决"蹂躏"被听成"饶命"这类小模型误识别
 import { pinyin } from 'pinyin-pro';
 
 /**
@@ -21,44 +23,61 @@ export function toPinyinSeq(text) {
     .filter(Boolean);
 }
 
-/** 编辑距离归一化相似度（0~1） */
-export function seqSim(a, b) {
-  const m = a.length;
-  const n = b.length;
-  if (m === 0 && n === 0) return 1;
-  if (m === 0 || n === 0) return 0;
-  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
-    }
+/** 声母表（按最长优先匹配切分） */
+const INITIALS = ['zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'r', 'z', 'c', 's', 'y', 'w'];
+
+/** 切分拼音 → { initial, final }，零声母 initial 为 '' */
+function splitPinyin(py) {
+  for (const ini of INITIALS) {
+    if (py.startsWith(ini)) return { initial: ini, final: py.slice(ini.length) };
   }
-  return 1 - dp[m][n] / Math.max(m, n);
+  return { initial: '', final: py };
 }
 
-/** LCS（最长公共子序列）长度 */
-export function lcsLen(a, b) {
-  const m = a.length;
-  const n = b.length;
-  if (m === 0 || n === 0) return 0;
-  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
-      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
-    }
+/** 声母近音组：语音识别/儿童发音常见混淆 */
+const INITIAL_GROUPS = [
+  ['m', 'n', 'l'], // 鼻音/边音
+  ['z', 'c', 's', 'zh', 'ch', 'sh'], // 平翘舌
+  ['f', 'h'], // 唇齿/喉
+];
+
+function initialNear(a, b) {
+  if (a === b) return true;
+  for (const g of INITIAL_GROUPS) {
+    if (g.includes(a) && g.includes(b)) return true;
   }
-  return dp[m][n];
+  return false;
+}
+
+/** 韵母近音：前后鼻音互近、前响复韵母（ai/ei/ao/ou）互近 */
+const FRONT_NASAL = ['an', 'ian', 'uan', 'üan', 'en', 'in', 'un', 'ün'];
+const BACK_NASAL = ['ang', 'iang', 'uang', 'eng', 'ing', 'ueng', 'ong', 'iong'];
+const DIPHTHONG = ['ai', 'ei', 'ao', 'ou']; // 前响复韵母
+
+function finalNear(a, b) {
+  if (a === b) return true;
+  if (FRONT_NASAL.includes(a) && BACK_NASAL.includes(b)) return true;
+  if (BACK_NASAL.includes(a) && FRONT_NASAL.includes(b)) return true;
+  if (DIPHTHONG.includes(a) && DIPHTHONG.includes(b)) return true;
+  return false;
+}
+
+/**
+ * 单字拼音是否匹配：同音，或 声母近 + 韵母近
+ * 例：rou vs rao → r 同、ou/ao 近 → 匹配（蹂→饶）
+ *    lin vs ming → l/m 鼻音组近、in/ing 前后鼻音近 → 匹配（躏→命）
+ */
+function charMatch(t, h) {
+  if (t === h) return true;
+  const ti = splitPinyin(t);
+  const hi = splitPinyin(h);
+  return initialNear(ti.initial, hi.initial) && finalNear(ti.final, hi.final);
 }
 
 /**
  * 判断朗读是否正确
- * 规则：不可以漏字，但同音错字可以过。
- * 实现：目标每个字必须按序出现在识别结果里（LCS 覆盖度 = 1）。
- * 拼音已去声调，同音字（如 河/喝 都是 he）天然匹配，多读几个字不影响。
+ * 规则：不可以漏字，同音/近音可以过。
+ * 目标每个字必须按序在识别结果里找到（同音或近音）匹配。
  * @param {string} targetText 目标文本（句子/词语/字）
  * @param {string} hypText 语音识别出的文本
  * @returns {boolean}
@@ -67,10 +86,19 @@ export function isCorrect(targetText, hypText) {
   const t = toPinyinSeq(targetText);
   const h = toPinyinSeq(hypText);
   if (t.length === 0) return false;
-  // 单字：识别结果里出现该读音即算对（同音字容错）
-  if (t.length === 1) return h.includes(t[0]);
-  // 多字：目标每个字必须按序覆盖（漏任何一字都不行）
-  return lcsLen(t, h) === t.length;
+  // 单字：识别结果里任一字同音/近音即算对
+  if (t.length === 1) return h.some((x) => charMatch(t[0], x));
+  // 多字：目标每个字按序匹配（贪心），漏任何一字都不行
+  let hi = 0;
+  for (const tp of t) {
+    let found = false;
+    while (hi < h.length) {
+      if (charMatch(tp, h[hi])) { found = true; hi += 1; break; }
+      hi += 1;
+    }
+    if (!found) return false;
+  }
+  return true;
 }
 
 /** 调试用：返回匹配明细 */
@@ -80,8 +108,6 @@ export function matchDetail(targetText, hypText) {
   return {
     target: t,
     hyp: h,
-    editSim: t.length && h.length ? seqSim(t, h) : 0,
-    lcsCover: t.length ? lcsLen(t, h) / t.length : 0,
     pass: isCorrect(targetText, hypText),
   };
 }
