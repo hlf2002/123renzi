@@ -199,6 +199,8 @@ const speechTip = computed(() => {
 
 /** 朗读验证：识别当前句子，读对了才允许提交 */
 let autoSubmitTimer = null;
+let autoRetryTimer = null;
+const autoFailCount = ref(0);
 async function speakToPass() {
   if (speechState.value === 'listening' || speechState.value === 'loading') return;
   const target = currentSentence.value || (current.value && current.value.item && current.value.item.text) || '';
@@ -215,6 +217,7 @@ async function speakToPass() {
     if (isCorrect(target, hyp)) {
       speechState.value = 'pass';
       speechLastHyp.value = '';
+      autoFailCount.value = 0;
       // 识别通过后自动提交（相当于点了 全都会/确定），直接进入下一题；
       // 稍等片刻让“读得真棒”反馈可见
       autoSubmitTimer = setTimeout(() => { autoSubmitTimer = null; submit(); }, 600);
@@ -223,6 +226,11 @@ async function speakToPass() {
       console.warn('[语音匹配失败]', JSON.stringify(matchDetail(target, hyp)), '目标:', target, '识别:', hyp);
       speechLastHyp.value = hyp;
       speechState.value = 'fail';
+      // 自动重试监听：连续失败不超过 3 次，2 秒后重新开始听
+      autoFailCount.value += 1;
+      if (autoFailCount.value < 3) {
+        autoRetryTimer = setTimeout(() => { autoRetryTimer = null; speakToPass(); }, 2000);
+      }
     }
   } catch (e) {
     console.error('语音识别失败:', e && e.message ? e.message : e);
@@ -638,19 +646,22 @@ watch(phase, (v) => {
     speechState.value = 'idle';
     speechPartial.value = '';
     speechLastHyp.value = '';
+    autoFailCount.value = 0;
+    // 进入新题后自动开始监听，读完正确自动提交 → 循环
+    setTimeout(() => {
+      if (phase.value === 'playing' && speechState.value === 'idle') speakToPass();
+    }, 500);
   }
-  // 离开 playing 时取消挂起的自动提交，避免误提交
-  if (v !== 'playing' && autoSubmitTimer) {
-    clearTimeout(autoSubmitTimer);
-    autoSubmitTimer = null;
+  // 离开 playing 时取消挂起的自动提交/自动重试，避免误提交
+  if (v !== 'playing') {
+    if (autoSubmitTimer) { clearTimeout(autoSubmitTimer); autoSubmitTimer = null; }
+    if (autoRetryTimer) { clearTimeout(autoRetryTimer); autoRetryTimer = null; }
   }
 });
 
 onUnmounted(() => {
-  if (autoSubmitTimer) {
-    clearTimeout(autoSubmitTimer);
-    autoSubmitTimer = null;
-  }
+  if (autoSubmitTimer) { clearTimeout(autoSubmitTimer); autoSubmitTimer = null; }
+  if (autoRetryTimer) { clearTimeout(autoRetryTimer); autoRetryTimer = null; }
 });
 
 function goHome() {
