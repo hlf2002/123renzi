@@ -10,6 +10,17 @@
         </div>
         <div class="lv-sub">已认识 {{ level.skill_level }} 个字 · 按同龄学习进度估算</div>
       </div>
+      <!-- 右上角：麦克风图标（朗读验证） -->
+      <div class="mic-area" v-if="phase === 'playing'">
+        <button
+          class="mic-btn"
+          :class="{ listening: speechState === 'listening', pass: speechState === 'pass', fail: speechState === 'fail' }"
+          :disabled="speechState === 'listening' || speechState === 'loading'"
+          @click="speakToPass"
+          title="点我读一读"
+        >🎤</button>
+        <div class="mic-tip" :class="speechState" v-if="speechTip">{{ speechTip }}</div>
+      </div>
       <div class="spacer"></div>
     </header>
 
@@ -37,14 +48,6 @@
           <button class="btn primary big" :disabled="submitting" @click="submit">
             {{ submitting ? '保存中…' : (hasMarked ? '确定' : '全都会') }}
           </button>
-        </div>
-
-        <!-- 朗读验证：读对了才能点 全都会/确定 -->
-        <div class="speech-box" v-if="phase === 'playing'">
-          <button class="btn speech" :disabled="speechState === 'listening' || speechState === 'loading'" @click="speakToPass">
-            {{ speechBtnText }}
-          </button>
-          <div class="speech-tip" :class="speechState">{{ speechTip }}</div>
         </div>
 
         <!-- 学习卡阶段 -->
@@ -778,22 +781,44 @@ onMounted(() => {
 .hint { color: #b59a72; font-size: 15px; margin: 0; }
 .actions { display: flex; justify-content: center; }
 
-/* 朗读验证区 */
-.speech-box { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.btn.speech {
-  background: #4bb3ff;
-  color: #fff;
-  border-radius: 24px;
-  padding: 14px 34px;
-  font-size: 18px;
-  box-shadow: 0 6px 16px rgba(75, 179, 255, 0.35);
+/* 右上角麦克风朗读按钮 */
+.mic-area { position: relative; display: flex; align-items: center; }
+.mic-btn {
+  width: 48px; height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: #e8f4ff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(75, 179, 255, 0.25);
+  transition: transform 0.15s;
 }
-.btn.speech:disabled { opacity: 0.7; cursor: default; }
-.speech-tip { font-size: 14px; font-weight: 700; color: #b59a72; }
-.speech-tip.listening { color: #4bb3ff; }
-.speech-tip.pass { color: #2e8b4a; }
-.speech-tip.fail { color: #d94f2b; }
-.speech-tip.error { color: #d94f2b; }
+.mic-btn:hover { transform: scale(1.08); }
+.mic-btn:disabled { cursor: default; opacity: 0.8; }
+.mic-btn.listening { background: #ffe0e0; animation: micPulse 1s ease-in-out infinite; }
+.mic-btn.pass { background: #d6f5dc; }
+.mic-btn.fail { background: #ffe8d6; }
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 90, 0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 90, 90, 0); }
+}
+.mic-tip {
+  position: absolute;
+  top: 56px; right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b59a72;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+.mic-tip.listening { color: #4bb3ff; }
+.mic-tip.pass { color: #2e8b4a; }
+.mic-tip.fail { color: #d94f2b; }
+.mic-tip.error { color: #d94f2b; }
 
 .btn { border: none; border-radius: 18px; padding: 12px 26px; font-size: 17px; font-weight: 800; }
 .btn.primary { background: #ffb347; color: #fff; }
