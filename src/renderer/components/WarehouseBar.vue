@@ -39,6 +39,7 @@ const HOUSES = {
 .warehouse-bar {
   display: flex;
   justify-content: center;
+  align-items: flex-end;
   gap: 18px;
   width: 100%;
   padding: 0 20px;
@@ -47,34 +48,39 @@ const HOUSES = {
 .house {
   flex: 1;
   max-width: 240px;
+  height: 210px;
   position: relative;
   cursor: pointer;
   transition: transform 0.15s;
 }
 .house:hover { transform: translateY(-3px); }
+/* 图片贴底对齐，消除四张图房子位置差异 */
 .house-img {
   width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
   display: block;
 }
 /* 门牌：白色粗体印在房体底部 */
 .plate {
   position: absolute;
   left: 50%;
-  bottom: 19%;
+  bottom: 15%;
   transform: translateX(-50%);
   text-align: center;
   z-index: 2;
 }
 .w-name {
-  font-size: 18px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.15);
   line-height: 1.2;
 }
 .w-num {
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 19px;
+  font-weight: 900;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.15);
   margin-top: 2px;
