@@ -56,6 +56,9 @@ export function lcsLen(a, b) {
 
 /**
  * 判断朗读是否正确
+ * 规则：不可以漏字，但同音错字可以过。
+ * 实现：目标每个字必须按序出现在识别结果里（LCS 覆盖度 = 1）。
+ * 拼音已去声调，同音字（如 河/喝 都是 he）天然匹配，多读几个字不影响。
  * @param {string} targetText 目标文本（句子/词语/字）
  * @param {string} hypText 语音识别出的文本
  * @returns {boolean}
@@ -66,16 +69,8 @@ export function isCorrect(targetText, hypText) {
   if (t.length === 0) return false;
   // 单字：识别结果里出现该读音即算对（同音字容错）
   if (t.length === 1) return h.includes(t[0]);
-
-  const editSim = seqSim(t, h);
-  const lcsCover = lcsLen(t, h) / t.length;
-  const score = Math.max(editSim, lcsCover);
-
-  // 目标越短，对完美程度要求越高；句子长一点更宽容（允许漏几个字）
-  let threshold = 0.6;
-  if (t.length <= 4) threshold = 0.55;
-  if (t.length >= 9) threshold = 0.55;
-  return score >= threshold;
+  // 多字：目标每个字必须按序覆盖（漏任何一字都不行）
+  return lcsLen(t, h) === t.length;
 }
 
 /** 调试用：返回匹配明细 */

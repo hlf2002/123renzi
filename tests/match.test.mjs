@@ -33,13 +33,20 @@ test('isCorrect：整句读对', () => {
   assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在河边钓鱼'), true);
 });
 
-test('isCorrect：同音字容错（河→喝）', () => {
+test('isCorrect：同音错字可过（河→喝）', () => {
   assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在喝边钓鱼'), true);
 });
 
-test('isCorrect：漏读个别字仍通过（孩子读不全）', () => {
-  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在河边钓'), true);
-  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫河边钓鱼'), true);
+test('isCorrect：不可以漏字（末尾漏字）', () => {
+  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在河边钓'), false);
+});
+
+test('isCorrect：不可以漏字（中间漏字）', () => {
+  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫河边钓鱼'), false);
+});
+
+test('isCorrect：多读几个字仍通过', () => {
+  assert.strictEqual(isCorrect('小猫在河边钓鱼', '小猫在河边钓鱼鱼'), true);
 });
 
 test('isCorrect：读错较多判失败', () => {
@@ -59,8 +66,7 @@ test('isCorrect：空目标不通过', () => {
   assert.strictEqual(isCorrect('', '随便'), false);
 });
 
-test('isCorrect：短词语漏一半判失败', () => {
-  // 2~4 字目标阈值 0.55：漏一半不通过
+test('isCorrect：短词语漏字判失败、同音可过', () => {
   assert.strictEqual(isCorrect('东方', '东'), false);
   assert.strictEqual(isCorrect('苹果', '苹'), false);
   assert.strictEqual(isCorrect('苹果', '平果'), true); // 同音替换
