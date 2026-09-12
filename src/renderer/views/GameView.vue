@@ -26,6 +26,7 @@
           class="mic-btn disabled"
           title="没有检测到麦克风"
         >🎤</button>
+        <span v-if="!micAvailable" class="mic-unavailable">不可用</span>
         <div class="mic-tip" :class="speechState" v-if="micAvailable && speechTip">{{ speechTip }}</div>
       </div>
     </header>
@@ -827,6 +828,13 @@ onMounted(() => {
 .mic-btn:hover { transform: scale(1.08); }
 .mic-btn:disabled { cursor: default; opacity: 0.8; }
 .mic-btn.disabled { background: #eee; cursor: default; box-shadow: none; opacity: 0.5; }
+.mic-unavailable {
+  position: absolute;
+  top: 56px; right: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #aaa;
+}
 .mic-btn.listening { background: #ffe0e0; animation: micPulse 1s ease-in-out infinite; }
 .mic-btn.pass { background: #d6f5dc; }
 .mic-btn.fail { background: #ffe8d6; }
