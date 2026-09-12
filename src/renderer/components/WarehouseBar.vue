@@ -9,10 +9,10 @@
       @click="$emit('select', w)"
     >
       <img class="house-img" :src="HOUSES[w]" :alt="names[w]" />
-      <!-- 仓库名+字数，横排印在房体底部 -->
+      <!-- 仓库名+字数，两行紧凑印在房体底部 -->
       <div class="plate">
-        <span class="w-name">{{ names[w] }}</span>
-        <span class="w-num">{{ counts[w] || 0 }} 字</span>
+        <div class="w-name">{{ names[w] }}</div>
+        <div class="w-num">{{ counts[w] || 0 }} 字</div>
       </div>
     </div>
   </div>
@@ -62,15 +62,13 @@ const HOUSES = {
   object-position: bottom;
   display: block;
 }
-/* 门牌：白色字横排印在房体底部 */
+/* 门牌：两行紧凑居中印在房体底部 */
 .plate {
   position: absolute;
   left: 50%;
-  bottom: 13%;
+  bottom: 12%;
   transform: translateX(-50%);
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
+  text-align: center;
   z-index: 2;
   white-space: nowrap;
 }
@@ -79,12 +77,14 @@ const HOUSES = {
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  line-height: 1.1;
 }
 .w-num {
   font-size: 18px;
   font-weight: 900;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.15);
-  margin-top: 2px;
+  line-height: 1.1;
+  margin-top: 0;
 }
 </style>
