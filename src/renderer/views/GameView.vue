@@ -639,6 +639,13 @@ function playAllWarehouseFlyAnimation(byWarehouse, callback) {
   }, 900);
 }
 
+/** 进入新题后自动开始监听（相当于自动点击 读一读） */
+function startAutoListen() {
+  setTimeout(() => {
+    if (phase.value === 'playing' && speechState.value === 'idle') speakToPass();
+  }, 500);
+}
+
 watch(phase, (v) => {
   if (v === 'playing') {
     error.value = '';
@@ -647,15 +654,24 @@ watch(phase, (v) => {
     speechPartial.value = '';
     speechLastHyp.value = '';
     autoFailCount.value = 0;
-    // 进入新题后自动开始监听，读完正确自动提交 → 循环
-    setTimeout(() => {
-      if (phase.value === 'playing' && speechState.value === 'idle') speakToPass();
-    }, 500);
+    startAutoListen();
   }
   // 离开 playing 时取消挂起的自动提交/自动重试，避免误提交
   if (v !== 'playing') {
     if (autoSubmitTimer) { clearTimeout(autoSubmitTimer); autoSubmitTimer = null; }
     if (autoRetryTimer) { clearTimeout(autoRetryTimer); autoRetryTimer = null; }
+  }
+});
+
+// 换题（qIndex 或整批变化）时 phase 可能没变（如无标记→动画→next），
+// 需要按题号变化重新触发自动监听
+watch([qIndex, queue], () => {
+  if (phase.value === 'playing') {
+    speechState.value = 'idle';
+    speechPartial.value = '';
+    speechLastHyp.value = '';
+    autoFailCount.value = 0;
+    startAutoListen();
   }
 });
 
