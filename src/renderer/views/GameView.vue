@@ -34,9 +34,17 @@
         </div>
 
         <div class="actions" v-if="phase === 'playing'">
-          <button class="btn primary big" :disabled="submitting" @click="submit">
+          <button class="btn primary big" :disabled="submitting || speechState !== 'pass'" @click="submit">
             {{ submitting ? '保存中…' : (hasMarked ? '确定' : '全都会') }}
           </button>
+        </div>
+
+        <!-- 朗读验证：读对了才能点 全都会/确定 -->
+        <div class="speech-box" v-if="phase === 'playing'">
+          <button class="btn speech" :disabled="speechState === 'listening' || speechState === 'loading'" @click="speakToPass">
+            {{ speechBtnText }}
+          </button>
+          <div class="speech-tip" :class="speechState">{{ speechTip }}</div>
         </div>
 
         <!-- 学习卡阶段 -->
@@ -130,6 +138,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { api } from '../store';
 import WarehouseBar from '../components/WarehouseBar.vue';
 import LearnCard from '../components/LearnCard.vue';
+import { recognizeOnce, ensureModel } from '../speech/recognizer';
+import { isCorrect } from '../speech/match';
 
 const route = useRoute();
 const router = useRouter();
@@ -162,6 +172,54 @@ const warehouseChars = ref([]);
 const warehouseNames = { 1: '第一仓库', 2: '第二仓库', 3: '第三仓库', 4: '第四仓库' };
 const isWarehouseReview = ref(false);
 const error = ref('');
+
+// 朗读验证状态：idle | loading | listening | pass | fail | error
+const speechState = ref('idle');
+const speechPartial = ref('');
+
+const speechBtnText = computed(() => {
+  if (speechState.value === 'loading') return '⏳ 加载语音识别…';
+  if (speechState.value === 'listening') return '🎤 正在听…';
+  if (speechState.value === 'pass') return '✅ 读得真棒！';
+  return '🎤 读一读';
+});
+
+const speechTip = computed(() => {
+  switch (speechState.value) {
+    case 'idle': return '先读一读这句话，读对了才能继续哦～';
+    case 'loading': return '正在准备语音识别，请稍等…';
+    case 'listening': return speechPartial.value ? `听你说：${speechPartial.value}` : '请大声读出这句话';
+    case 'pass': return '读得真准！现在可以继续啦 🎉';
+    case 'fail': return '没听清，再读一遍试试！';
+    case 'error': return '麦克风不可用，请检查权限后重试';
+    default: return '';
+  }
+});
+
+/** 朗读验证：识别当前句子，读对了才允许提交 */
+async function speakToPass() {
+  if (speechState.value === 'listening' || speechState.value === 'loading') return;
+  const target = currentSentence.value || (current.value && current.value.item && current.value.item.text) || '';
+  if (!target) { speechState.value = 'error'; return; }
+  try {
+    speechState.value = 'loading';
+    await ensureModel();
+    speechState.value = 'listening';
+    speechPartial.value = '';
+    const hyp = await recognizeOnce({
+      onPartial: (t) => { speechPartial.value = t; },
+    });
+    speechPartial.value = '';
+    if (isCorrect(target, hyp)) {
+      speechState.value = 'pass';
+    } else {
+      speechState.value = 'fail';
+    }
+  } catch (e) {
+    console.error('语音识别失败:', e && e.message ? e.message : e);
+    speechState.value = 'error';
+  }
+}
 
 const current = computed(() => queue.value[qIndex.value] || null);
 const currentSentence = computed(() => {
@@ -565,7 +623,12 @@ function playAllWarehouseFlyAnimation(byWarehouse, callback) {
 }
 
 watch(phase, (v) => {
-  if (v === 'playing') error.value = '';
+  if (v === 'playing') {
+    error.value = '';
+    // 每个新句子都要重新朗读验证
+    speechState.value = 'idle';
+    speechPartial.value = '';
+  }
 });
 
 function goHome() {
@@ -667,6 +730,23 @@ onMounted(loadBatch);
 
 .hint { color: #b59a72; font-size: 15px; margin: 0; }
 .actions { display: flex; justify-content: center; }
+
+/* 朗读验证区 */
+.speech-box { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.btn.speech {
+  background: #4bb3ff;
+  color: #fff;
+  border-radius: 24px;
+  padding: 14px 34px;
+  font-size: 18px;
+  box-shadow: 0 6px 16px rgba(75, 179, 255, 0.35);
+}
+.btn.speech:disabled { opacity: 0.7; cursor: default; }
+.speech-tip { font-size: 14px; font-weight: 700; color: #b59a72; }
+.speech-tip.listening { color: #4bb3ff; }
+.speech-tip.pass { color: #2e8b4a; }
+.speech-tip.fail { color: #d94f2b; }
+.speech-tip.error { color: #d94f2b; }
 
 .btn { border: none; border-radius: 18px; padding: 12px 26px; font-size: 17px; font-weight: 800; }
 .btn.primary { background: #ffb347; color: #fff; }

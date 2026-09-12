@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
+    "pinyin-pro": "^3.29.4",
+    "vosk-browser": "^0.0.8",
     "vue": "^3.5.10",
     "vue-router": "^4.4.5"
   },
@@ -42,20 +44,33 @@
       {
         "from": "tts",
         "to": "tts",
-        "filter": ["**/*.onnx", "**/*.onnx.json"]
+        "filter": [
+          "**/*.onnx",
+          "**/*.onnx.json"
+        ]
       }
     ],
     "mac": {
       "icon": "build/icon.icns",
       "target": [
-        { "target": "dmg", "arch": ["arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
       ],
       "category": "public.app-category.education"
     },
     "win": {
       "icon": "build/icon.png",
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
