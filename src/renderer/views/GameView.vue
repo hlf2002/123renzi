@@ -140,6 +140,7 @@ import WarehouseBar from '../components/WarehouseBar.vue';
 import LearnCard from '../components/LearnCard.vue';
 import { recognizeOnce, ensureModel } from '../speech/recognizer';
 import { isCorrect, matchDetail } from '../speech/match';
+import { playGameBgm, setTeachingMode, resumeBgm } from '../audio/bgm';
 
 const route = useRoute();
 const router = useRouter();
@@ -201,6 +202,7 @@ const speechTip = computed(() => {
 const autoFailCount = ref(0);
 async function speakToPass() {
   if (speechState.value === 'listening' || speechState.value === 'loading') return;
+  resumeBgm();
   const target = currentSentence.value || (current.value && current.value.item && current.value.item.text) || '';
   if (!target) { speechState.value = 'error'; return; }
   try {
@@ -649,7 +651,10 @@ watch(phase, (v) => {
     speechPartial.value = '';
     speechLastHyp.value = '';
     autoFailCount.value = 0;
+    setTeachingMode(false); // 答题阶段恢复背景音
     startAutoListen();
+  } else if (v === 'learning') {
+    setTeachingMode(true); // 教学阶段把背景音压到几乎听不到
   }
   // 离开 playing 时无需清理（自动提交/重听均为即时调用，无挂起定时器）
 });
@@ -674,7 +679,10 @@ function goHome() {
   router.push('/login');
 }
 
-onMounted(loadBatch);
+onMounted(() => {
+  playGameBgm();
+  loadBatch();
+});
 </script>
 
 <style scoped>

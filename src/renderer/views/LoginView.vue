@@ -63,6 +63,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api, AVATARS, PARENT_PIN } from '../store';
+import { playLoginBgm, resumeBgm } from '../audio/bgm';
 
 const router = useRouter();
 const users = ref([]);
@@ -76,9 +77,13 @@ async function load() {
   if (!api) return;
   users.value = await api.users.list();
 }
-onMounted(load);
+onMounted(() => {
+  playLoginBgm();
+  load();
+});
 
 function enter(u) {
+  resumeBgm();
   router.push(`/game/${u.user_id}`);
 }
 async function createUser() {
