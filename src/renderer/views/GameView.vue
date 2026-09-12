@@ -197,9 +197,7 @@ const speechTip = computed(() => {
   }
 });
 
-/** 朗读验证：识别当前句子，读对了才允许提交 */
-let autoSubmitTimer = null;
-let autoRetryTimer = null;
+/** 朗读验证：识别当前句子，读对了立即提交，读错了立即重听 */
 const autoFailCount = ref(0);
 async function speakToPass() {
   if (speechState.value === 'listening' || speechState.value === 'loading') return;
@@ -218,18 +216,17 @@ async function speakToPass() {
       speechState.value = 'pass';
       speechLastHyp.value = '';
       autoFailCount.value = 0;
-      // 识别通过后自动提交（相当于点了 全都会/确定），直接进入下一题；
-      // 稍等片刻让“读得真棒”反馈可见
-      autoSubmitTimer = setTimeout(() => { autoSubmitTimer = null; submit(); }, 300);
+      // 读对了立即提交（相当于点了 全都会/确定），不留白
+      submit();
     } else {
       // 记录匹配明细便于诊断：目标/识别/相似度
       console.warn('[语音匹配失败]', JSON.stringify(matchDetail(target, hyp)), '目标:', target, '识别:', hyp);
       speechLastHyp.value = hyp;
       speechState.value = 'fail';
-      // 自动重试监听：连续失败不超过 3 次，2 秒后重新开始听
+      // 立即进入重听状态，不等错误提示消失；连续失败超 3 次才停下等手动
       autoFailCount.value += 1;
       if (autoFailCount.value < 3) {
-        autoRetryTimer = setTimeout(() => { autoRetryTimer = null; speakToPass(); }, 2000);
+        speakToPass();
       }
     }
   } catch (e) {
@@ -654,11 +651,7 @@ watch(phase, (v) => {
     autoFailCount.value = 0;
     startAutoListen();
   }
-  // 离开 playing 时取消挂起的自动提交/自动重试，避免误提交
-  if (v !== 'playing') {
-    if (autoSubmitTimer) { clearTimeout(autoSubmitTimer); autoSubmitTimer = null; }
-    if (autoRetryTimer) { clearTimeout(autoRetryTimer); autoRetryTimer = null; }
-  }
+  // 离开 playing 时无需清理（自动提交/重听均为即时调用，无挂起定时器）
 });
 
 // 换题（qIndex 或整批变化）时 phase 可能没变（如无标记→动画→next），
@@ -674,8 +667,7 @@ watch([qIndex, queue], () => {
 });
 
 onUnmounted(() => {
-  if (autoSubmitTimer) { clearTimeout(autoSubmitTimer); autoSubmitTimer = null; }
-  if (autoRetryTimer) { clearTimeout(autoRetryTimer); autoRetryTimer = null; }
+  // 无挂起定时器，无需清理
 });
 
 function goHome() {
