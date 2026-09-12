@@ -32,11 +32,12 @@ export function ensureModel() {
  * 一次性识别：等待用户朗读，静音或超时后自动结束
  * @param {Object} opts
  * @param {Function} [opts.onPartial] 实时识别中间结果的回调 (text) => void
- * @param {number} [opts.silenceMs] 连续静音多久判定说完（默认 5000ms，允许孩子 5 秒留白）
+ * @param {number} [opts.silenceStartMs] 孩子开口前最多等多久（默认 5000ms）
+ * @param {number} [opts.silenceMs] 开口后中间停顿多久判定说完（默认 1600ms）
  * @param {number} [opts.maxMs] 最长录音时长（默认 20s）
  * @returns {Promise<string>} 识别文本（可能为空串）
  */
-export async function recognizeOnce({ onPartial, silenceMs = 5000, maxMs = 20000 } = {}) {
+export async function recognizeOnce({ onPartial, silenceStartMs = 5000, silenceMs = 1600, maxMs = 20000 } = {}) {
   const m = await ensureModel();
   const rec = new m.KaldiRecognizer(SAMPLE_RATE);
   let stream = null;
@@ -48,7 +49,9 @@ export async function recognizeOnce({ onPartial, silenceMs = 5000, maxMs = 20000
     const result = await new Promise((resolve, reject) => {
       let finalText = '';
       let settled = false;
+      let hasVoice = false;
       let lastVoiceAt = Date.now();
+      const startAt = Date.now();
       let timer = null;
 
       const done = () => {
@@ -128,14 +131,20 @@ export async function recognizeOnce({ onPartial, silenceMs = 5000, maxMs = 20000
             } catch (e) {
               /* ignore */
             }
-            // 静音检测
+            // 静音检测：开口前等 silenceStartMs（孩子还没开始），
+            // 开口后中间停顿 silenceMs 判定说完（孩子已读完）
             let energy = 0;
             for (let i = 0; i < input.length; i += 8) energy += input[i] * input[i];
             energy /= input.length / 8;
             const rms = Math.sqrt(energy);
-            if (rms > 0.012) lastVoiceAt = Date.now();
-            else if (Date.now() - lastVoiceAt > silenceMs && Date.now() - lastVoiceAt < maxMs) {
+            if (rms > 0.012) {
+              hasVoice = true;
+              lastVoiceAt = Date.now();
+            } else if (hasVoice && Date.now() - lastVoiceAt > silenceMs && Date.now() - lastVoiceAt < maxMs) {
               // 已说完：给识别器一点消化时间
+              done();
+            } else if (!hasVoice && Date.now() - startAt > silenceStartMs && Date.now() - startAt < maxMs) {
+              // 等了很久孩子还没开口
               done();
             }
           };
