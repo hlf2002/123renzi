@@ -2,7 +2,10 @@
 // 流程：加载模型 → 采集麦克风（16kHz 单声道）→ 喂给识别器 → 静音/超时自动停止 → 返回识别文本
 import { createModel } from 'vosk-browser';
 
-const MODEL_URL = 'models/vosk-model-small-cn-0.22.tar.gz';
+// 模型 URL：用页面地址推导绝对路径。
+// 生产(file:// 页面) → file:///.../dist/models/... （Electron 渲染进程 fetch file:// 可用，vosk 已验证）
+// dev(vite server)  → http://localhost:5173/models/... （public/ 映射）
+const MODEL_URL = new URL('models/vosk-model-small-cn-0.22.tar.gz', window.location.href).href;
 const SAMPLE_RATE = 16000;
 
 let modelPromise = null;
