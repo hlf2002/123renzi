@@ -66,7 +66,7 @@ const HOUSES = {
 .plate {
   position: absolute;
   left: 50%;
-  bottom: 7%;
+  bottom: 5.5%;
   transform: translateX(calc(-50% - 10px));
   text-align: center;
   z-index: 2;
